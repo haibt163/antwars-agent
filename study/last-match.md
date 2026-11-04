@@ -1,58 +1,64 @@
- Route A. Match played; lost. Server-verified.
+ Result: won. Route A (house challenge), server-confirmed queens_killed victory.
 
- ┌──────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────┐
- │                  │                                                                                              │
- ├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
- │ Challenger shown │ omp-dolphin (colony 1)                                                                       │
- ├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
- │ Opponent         │ antwars/gpt-6-1-terra-max-fast — "GPT-6.1 Terra", level max, tier fast (house bot, colony 0) │
- ├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
- │ Game type        │ House challenge, public lobby, unrated (lobby 3fa2c6fe…, request c57d8562…)                  │
- ├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
- │ Map / clock      │ Wide Plain 256×92, 10 ticks/s, 3600 s limit, ant cap 1024                                    │
- ├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
- │ Start            │ 2026-11-04T06:01:09.885Z                                                                     │
- ├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
- │ End              │ tick 18058 → 1805.8 s (≈30:06)                                                               │
- ├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
- │ Result           │ colony 0 won, sustained_territory / decided by territory                                     │
- ├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
- │ Lobby outcome    │ colony_0_won; house seat held colony 0 (VERIFIED)                                            │
- ├──────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────┤
- │ Allowance after  │ 17 of 20 shared, resets next UTC midnight                                                    │
- └──────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────┘
+ ┌─────────────────────┬──────────────────────────────────────────────────────────────────────────────┐
+ │ Field               │ Value                                                                        │
+ ├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+ │ Challenger (server) │ omp-dolphin, colony 1                                                        │
+ ├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+ │ Opponent            │ antwars/claude-opus-5-5 — "Claude Opus 5.5", level high, house bot, colony 0 │
+ ├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+ │ Game type           │ House challenge, public lobby unrated — lobby 8cc302d2…, request bce1c2c4…   │
+ ├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+ │ Map / clock         │ Four Lanes 128×128, 10 ticks/s, 2700 s limit, ant cap 768                    │
+ ├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+ │ Start / end         │ 2026-11-04T08:27:15Z / tick 10126 → 1012.6 s (~16:53), 08:44:08Z             │
+ ├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+ │ Result              │ colony 1 won, queens_killed, decidedBy: queens_killed                        │
+ ├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
+ │ Lobby outcome       │ colony_1_won (verified via read_lobby); challenge state finished             │
+ └─────────────────────┴──────────────────────────────────────────────────────────────────────────────┘
 
- Final state (VERIFIED from observe at tick 18059): queens 0 alive at 40 HP, queens 1 and 2 dead; 48 soldiers, 0
- workers, 4451 food stored, 80 territory tiles (13‰). Enemy visible: 100 soldiers, 69 workers.
+ Final state at tick 10127 (VERIFIED): 3 queens alive at 40/40 HP each — q0 (111,64), q1 (86,40) founded tick 3233, q2 (83,80) founded tick 5988; 768 ants
+ (cap), 299 soldiers at last count; 2792 food stored; territory 1040 tiles, 253‰; 0 enemy ants and 0 enemy queens in sight.
 
- ┌────────┬──────────────────────────────────────────────────────────────────────────┐
- │ Tick   │ Event                                                                    │
- ├────────┼──────────────────────────────────────────────────────────────────────────┤
- │ 155    │ Running already; pick_nest window had closed, queen auto-placed (223,46) │
- ├────────┼──────────────────────────────────────────────────────────────────────────┤
- │ 2085   │ Brood workers; FORAGE 24 at home patch (216,26); 92 free ants            │
- ├────────┼──────────────────────────────────────────────────────────────────────────┤
- │ 5416   │ 2nd queen founded (202,20), cost 400                                     │
- ├────────┼──────────────────────────────────────────────────────────────────────────┤
- │ 7224   │ 3rd queen founded (190,51), cost 800                                     │
- ├────────┼──────────────────────────────────────────────────────────────────────────┤
- │ 7328   │ First enemy soldiers seen, x≈148 (148 visible)                           │
- ├────────┼──────────────────────────────────────────────────────────────────────────┤
- │ 8559   │ Brood switched to soldiers; DEFEND 60 at queen 2                         │
- ├────────┼──────────────────────────────────────────────────────────────────────────┤
- │ ~11400 │ Queen 2 killed (server: "Queen 2 is not a live queen you own")           │
- ├────────┼──────────────────────────────────────────────────────────────────────────┤
- │ 14808  │ Mistake: both remaining queens switched to soldiers-only                 │
- ├────────┼──────────────────────────────────────────────────────────────────────────┤
- │ ~16390 │ Queen 1 killed                                                           │
- ├────────┼──────────────────────────────────────────────────────────────────────────┤
- │ 18058  │ Territory win for colony 0; my territory 533 → 80 tiles                  │
- └────────┴──────────────────────────────────────────────────────────────────────────┘
+ Confirmed sequence of accepted calls:
 
- What actually decided it (VERIFIED): territory. My share fell 90‰ (t=594 s) → 45‰ (1280 s) → 13‰ (end) while enemy
- ants sat on my ground; they completed the 6×-for-300 s run.
+ ┌─────────────┬────────────────────────────────────────────────────────────────────────────┐
+ │ Tick        │ Action                                                                     │
+ ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ 313         │ Pick window already closed; queen auto-placed (111,64), no pick_nest retry │
+ ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ 597         │ Brood → workers                                                            │
+ ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ 849         │ FORAGE 10 at (111,44) — home patch                                         │
+ ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ 2782        │ FORAGE 12 at (92,38); local food then depleted (0 visible food tiles)      │
+ ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ 4528        │ FORAGE 40 at (106,34) — north band, income recovered ~2.7/s                │
+ ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ 3233 / 5988 │ Extra queens founded at (86,40) cost 400 and (83,80) cost 800              │
+ ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ 6347 / 6352 │ Queens 0 and 2 switched to soldiers; queen 1 kept workers                  │
+ ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ 6386        │ DEFEND 18 soldiers at (80,80) picket in front of queen 2                   │
+ ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ 7012→8136   │ ATTACK marks stepped west: (55,80) 26, (42,80) 30, (26,80) 40 soldiers     │
+ ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ 10126       │ Match ends queens_killed, winner colony 1                                  │
+ └─────────────┴────────────────────────────────────────────────────────────────────────────┘
 
- Own errors, evidence-backed: (1) no nest pick — match had started before my first pick_nest; (2) worker production
- switched off at 1481 s, so workers hit 0 and food income flatlined at ~4.5k, starving the army; (3) repeated
- rate_limited/call_rate windows wasted from 10 s command intervals; (4) 180 s mark expiry left queens undefended in
- gaps; (5) enemy nest never located, so no counter-raid. No further challenge or lobby was created.
+ Combat: enemy forward group in lane 3 (x≈43–50, y≈74–81; 23 workers, 3 soldiers) was engaged and destroyed — mark credits 18 kills / 4 losses on the
+ (42,80) mark, then 11 more on the (26,80) mark; mark-accounted total 45 kills. Ant cap (768) was reached by tick ≈9600; the colony ran 3 live queens and
+ 2792 surplus food.
+
+ Interpretation, not directly observed: the killing blow landed on the enemy's queens, which our sight never revealed — the westward ATTACK marks were
+ still translating into a north-west sweep when order was refused with match_over. Which specific mark or free soldiers made the kill is UNVERIFIED. The
+ decisive difference from the previous loss was the reverse of both earlier failure modes: worker brood never shut off (queen 1 held workers to the end)
+ and forward soldier pressure was projected continuously instead of a static DEFEND posture.
+
+ No further challenge, lobby, queue or identity action was taken.
+
+ ※ recap: Goal was one house-bot match by challenge; that's done — omp-dolphin beat antwars/claude-opus-5-5 by queens_killed at tick 10126 (16:53). Nothing
+ running now; next action is yours, e.g. a new challenge run when you ask.
+
+ 
