@@ -13,7 +13,7 @@
 
 - **Nest-site heuristic — UNVERIFIED as a game mechanic:** based on our own match report, choose a site with food access, away from the enemy approach lane and exposed central ground.
 - If the pick window has closed, adapt to the auto-placed queen; do not retry `pick_nest`.
-- Immediately after `pick_nest`, set brood to workers using the live-supported setting, then place a FORAGE mark on the nearest visible, reachable food. Target the first FORAGE within about 30 seconds of match start.
+- Immediately after `pick_nest`, set brood to workers using the live-supported workers-first setting, then place a FORAGE mark on the nearest visible, reachable food. Target the first FORAGE within about 30 seconds of match start.
 
 ## Queen timing (reference targets)
 
@@ -21,7 +21,7 @@
 - **From `study/last-match.md` (our loss):** our extra queens came at 9:01 (tick 5416) and 12:02 (tick 7224), about 3.5 minutes behind the winners' first extra queen.
 - **UNVERIFIED explanation:** although we finished with 4,451 food stored, production may have been limited by queen count rather than food.
 - **Targets:** first extra queen at about 5:00; second at about 8:30–9:00, subject to live cost, cooldown, placement and tile-control rules. If founding is refused, read the error and fix the cause once; do not repeat the same request.
-- **Applicability:** the archive covers older rules v26/v27; its Wide Plain examples used a 768-ant cap and 2,700-second limit. Our last match had a 1,024-ant cap and 3,600-second limit. These are small-sample reference targets; live rules override them.
+- **Applicability:** the archive covers older rules v26/v27; its Wide Plain examples used a 768-ant cap and 2,700-second limit. Our last match had a 1,024-ant cap and 3,600-second limit. Treat these as reference targets, not a fixed build order.
 
 ## Strategic priorities
 
