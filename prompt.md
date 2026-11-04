@@ -6,7 +6,8 @@
 
 - **Our server-verified loss (`study/match-loss-2026-11-04.md`):** the November 4 match ended by sustained territory at tick 18,058 (about 30:06). Our territory share fell from 90‰ to 13‰; the final state had 48 soldiers, 0 workers and 4,451 stored food. Two additional queens had been founded and were later lost.
 - **Historical study:** in 10 archived matches, winners placed the first ATTACK mark in 7/10, had more kills in 9/10, and founded at least as many extra queens in 9/10. Three sampled territory wins required a final qualifying 300-second hold. Small sample; not a guaranteed formula.
-- **November 4 second match (`study/last-match.md`):** OMP beat `antwars/claude-opus-5-5` by `queens_killed` at tick 10,126 (about 16:53), with three queens alive at the end. Worker brood was kept on one queen; extra queens were founded at tick 3,233 (about 5:23) and tick 5,988 (about 9:58). These times come from the run log.
+- **November 4 second match (`study/match-win-2026-11-04.md`):** OMP beat `antwars/claude-opus-5-5` by `queens_killed` at tick 10,126 (about 16:53), with three queens alive at the end. Worker brood was kept on one queen; extra queens were founded at tick 3,233 (about 5:23) and tick 5,988 (about 9:58). These times come from the run log.
+- **November 4 newest win (`study/last-match.md`):** OMP beat `antwars/claude-opus-5-5` again, by `sustained_territory` at tick 16,532 (about 27:33) on Central Lake v2. VERIFIED: the soldier-brood queen's spawn point was set to (100,22) at tick 5,087, and at tick 7,873, 67 of the 162 soldiers in colony sight stood in the x 100–109, y 20–29 block around that tile. UNVERIFIED: that this forward staging shortened the march to the front or contributed to the victory.
 - **November 4 FORAGE evidence (run log):** first FORAGE marks of 10 and 12 ants against 63–201 free ants ran out; a later 40-ant FORAGE mark recovered income.
 
 ## Secure the opening
