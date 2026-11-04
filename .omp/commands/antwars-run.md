@@ -49,7 +49,7 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 **Sending the challenge**
 
 - Call `request_challenge` once with `{key, opponent}` using the exact live schema.
-- One challenge, one wait window of at most 15 minutes. Poll at the documented cadence. Stop immediately on a terminal state or match handoff. Do not leave, rejoin, or resend.
+- One challenge, one wait window of at most 15 minutes. While waiting for the house seat, poll `challenge_status` about every 15 seconds; do not sleep 60 seconds or longer between polls. Stop immediately on a terminal state or match handoff. Do not leave, rejoin, or resend.
 - If the challenge requires anything beyond omp-dolphin's existing identity and key (a new identity or handle, another key, an invite from someone else), do not do it. Report exactly what it asks for and stop.
 - If the challenge exists only on the website with no tool or documented API, report that and stop. Do not drive a browser or scrape the site unless the user explicitly asks.
 
@@ -79,11 +79,12 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 ## 4. Match handoff and play
 
 1. When a match is confirmed, call `locate_match` and use only the exact `mcpUrl`, credentials and session details it returns. Do not read project files after this handoff; all required strategy files were read during preflight.
-2. If match tools are dynamically mounted, use them. Otherwise use the runtime's supported Streamable HTTP MCP client against that exact URL: initialize, capture and reuse `Mcp-Session-Id` when supplied, send the initialized notification, call `tools/list`, then call the documented match tools. If the real endpoint cannot be reached, report the exact error and stop. Do not test against a mock first.
-3. Use the handoff's initial briefing/board data only as needed to make the opening selection. If the live rules offer `pick_nest`, issue it as the first game action immediately; do not read files, scout or perform extended analysis first. If the pick window has closed, accept the auto-placed queen and do not retry.
-4. Immediately after the nest action, follow the opening sequence in `prompt.md`. Then observe about every 15-20 seconds during the opening and fights, and about every 30 seconds in calm periods. Never let more than 60 seconds pass between accepted game-tool calls; refused calls do not reset the idle clock.
-5. Use `order`, `count_mark`, `found_queen` and `set_brood` only according to their live schemas and limits. After consequential actions, check whether each command was accepted and adapt to the board.
-6. Continue until the server confirms `matchOver: true` (or its documented equivalent), the winner or draw, and the result.
+2. If match tools are dynamically mounted, use them. Otherwise use the runtime's supported Streamable HTTP MCP client against that exact URL: initialize, capture and reuse `Mcp-Session-Id` when supplied, send the initialized notification, call `tools/list`, then call the documented match tools. Use whole-number JSON-RPC request IDs only; never use fractional IDs. On any transport error, including `ECONNRESET` or a parse error, retry immediately for up to 3 total tries before reporting failure. No single eval cell may sleep longer than 20 seconds; cells are force-killed at 30 seconds and lose their variables. If the real endpoint cannot be reached after those tries, report the exact error and stop. Do not test against a mock first.
+3. Right after joining the match, make ONE `pick_nest` attempt at a tile chosen using the nest-site heuristic in `prompt.md`. Never assume the pick window has closed; only an actual refusal from the server means it has closed. After a refusal, do not retry; continue with the auto-placed queen. Then, with no reading or analysis in between, set brood to workers using the live-supported setting and place the first FORAGE mark on the nearest visible, reachable food.
+4. After the first brood and FORAGE orders are accepted, read the full match briefing and rules once. If the tool output is truncated and returns an artifact handle, fetch it. If the match server exposes its own rules, read them once.
+5. Observe about every 15-20 seconds during the opening and fights, and about every 30 seconds in calm periods. Never let more than 60 seconds pass between accepted game-tool calls; refused calls do not reset the idle clock.
+6. Use `order`, `count_mark`, `found_queen` and `set_brood` only according to their live schemas and limits. After consequential actions, check whether each command was accepted and adapt to the board.
+7. Continue until the server confirms `matchOver: true` (or its documented equivalent), the winner or draw, and the result.
 
 ## 4A. Play plan
 
