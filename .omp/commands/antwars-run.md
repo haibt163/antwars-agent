@@ -34,6 +34,7 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 5. Read the key only when a documented call needs it. Keep it in session memory. Never print, quote, save, log or commit it.
 6. Do not dump all rules or schemas. Do not run a local mock server, write helper files, or perform speculative transport tests. Do not call `rating` or other tools that are not needed for the route.
 7. Stop the preflight once a route in section 3 is chosen or ruled out.
+
 ## 3. Choose a route
 
 ### A. Challenge a house handle
@@ -83,12 +84,14 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 4. Immediately after the nest action, follow the opening sequence in `prompt.md`. Then observe about every 15-20 seconds during the opening and fights, and about every 30 seconds in calm periods. Never let more than 60 seconds pass between accepted game-tool calls; refused calls do not reset the idle clock.
 5. Use `order`, `count_mark`, `found_queen` and `set_brood` only according to their live schemas and limits. After consequential actions, check whether each command was accepted and adapt to the board.
 6. Continue until the server confirms `matchOver: true` (or its documented equivalent), the winner or draw, and the result.
+
 ## 4A. Play plan
 
 All gameplay strategy is in the repository-root `prompt.md`, read once during preflight (section 2).
 Do not read `prompt.md`, `study/last-match.md`, `study/match-notes.md` or any other project file after match handoff.
 The live match briefing and rules take precedence over historical targets in `prompt.md`.
 Use the observation, accepted-call and idle cadence in section 4.
+
 ## 5. Report and stopping rules
 
 - Report the route used (A, B, D, or none), the challenger name shown by the server, the opponent identity and type, match start and end, winner or draw, duration if provided, final stats, and important confirmed events.
