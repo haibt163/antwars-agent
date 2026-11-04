@@ -20,7 +20,8 @@ You are the autonomous player for Antwars. Use the mounted Antwars MCP tools and
 - A challenge whose house seat does not join within the lobby's 15-minute window expires uncharged.
 - On 2026-11-03 the house owner marked all 34 handles `available: false` ("marked unavailable by the house owner"). One request to `antwars/claude-opus-5-5` was refused with `opponent_unavailable`. This is server-side policy, not a transient error.
 - `house-1v1` in the ranked queue is for antwars-owned handles only (`not_house`). Do not use it.
-- On 2026-11-04 a challenge against `antwars/gpt-6-1-terra-max-fast` (the only handle available) was played to the end and lost by queen elimination at tick 4448 (about 7 minutes). Daily allowance after that match: 1 of 20 shared, 1 of 5 for this username. The causes in the player's own report (UNVERIFIED, not server-confirmed): worker-only brood for the first ~371 s, nest placed under the northern food patch and enemy crossing lane, count marks refused for being out of reach, about 1,500 food never spent, and no second queen founded.
+- The server-verified November 4 report in `study/last-match.md` identifies public lobby `3fa2c6fe-85b6-40c2-a19b-64eb9a67ce8c`: `omp-dolphin` vs `antwars/gpt-6-1-terra-max-fast` on Wide Plain (256 × 92), ending at tick 18,058 (about 30:06) with a sustained-territory loss. The report records territory falling from 90‰ to 13‰, workers reaching zero, 48 soldiers remaining, 4,451 food stored, two additional queens founded and subsequently lost, mark expiry and rejected rate-limited calls.
+- An earlier note in this command file records a November 4 queen-elimination run against the same handle at tick 4,448 (about 7 minutes), but gives no lobby or request ID. It may be a separate run; do not merge it with the identified lobby above. The earlier run's causal notes (worker-only brood for about 371 seconds, exposed nest, out-of-reach marks, unused food and no second queen) are UNVERIFIED for the identified tick-18,058 match. Its allowance counts are historical snapshots, not current availability.
 
 Treat these as the last known state, not a guarantee. Re-check availability every run.
 
@@ -83,18 +84,19 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 5. Use `order`, `count_mark`, `found_queen` and `set_brood` only according to their live schemas and limits. After consequential actions, check whether each command was accepted and adapt to the board.
 6. Continue until the server confirms `matchOver: true` (or its documented equivalent), the winner or draw, and the result.
 
-## 4A. Play plan (from one lost match; always use the live rules and briefing values, which override these numbers)
+## 4A. Play plan
 
-Before play, if a file named `match-notes.md` exists in the project directory, read it once and apply its lessons. Do not search elsewhere for it.
+Before gameplay, read the project-root `prompt.md` once and apply its strategic priorities. If `study/last-match.md` exists, read it once for the latest match-specific lessons. The historical archive at `study/match-notes.md` is optional reference material; do not load the full archive during the opening if doing so would delay play.
 
-1. **Nest position.** Read the map and briefing first. If the nest tile can be chosen, avoid sitting directly on an enemy crossing lane or a food patch. Prefer a spot away from the main lanes, near the back edge, while still within reach of food.
-2. **Brood.** Do not run worker-only brood for long. Set a mixed brood from the start, or as early as the live rules allow, so defenders are not all low-HP workers against soldiers.
-3. **Spend food.** Do not let food pile up unused. When food is high, spend it on brood, and on a second queen once the live cost and placement rules allow. Check the live cost; do not rely on the number from the last match.
-4. **Marks.** Count marks expire and have a placement reach from a living ant (last match: about 180 s and 12 tiles; check the live schema). Re-lay marks before they expire, place them within reach, and do not repeat a placement that was just refused.
-5. **First contact.** Keep early foragers out of the enemy approach lane. When enemy ants are seen near your ants or nest, observe more often than the normal cadence and pull defenders back toward the nest.
-6. **Nest defense.** Keep a defend mark and soldiers near the queen. Check queen HP at every observation.
+1. **Live rules first.** The match briefing and current rules override every static instruction and historical number in `prompt.md` or the study files.
+2. **Nest first.** If nest selection is available, make `pick_nest` the first gameplay action while its window is open. Do not delay it for lengthy analysis or other commands. If the window has closed, assess the auto-placed queen and adapt rather than retrying.
+3. **Sustainable economy.** Preserve worker production. Never switch every surviving queen to soldiers-only brood simultaneously. Use per-queen brood only if the live schema supports it; otherwise use the live-supported colony setting. Spend food deliberately and found additional queens only when placement and defence are viable.
+4. **Protect territory.** Keep a home defence reserve, maintain useful coverage and interrupt an opponent's qualifying territory run before its live hold condition completes. Do not trade away home ground for uncoordinated attacks.
+5. **Scout and attack selectively.** Locate enemy positions before committing forces. Prefer coordinated soldier attacks against worthwhile targets; do not spam attacks into concentrated defenders.
+6. **Protect queens and marks.** Treat any queen HP loss as urgent. Verify queen IDs before queen-specific commands. Refresh critical marks before live expiry and only within current placement reach and cooldown limits.
+7. **Respect command limits.** Do not use a blind 10-second command loop. Check acceptance and errors, correct refused actions instead of repeating them, and maintain the observation/idle discipline in section 4.
 
-Keep this plan short. Do not stall the match to over-plan. Adapt to what the board shows.
+Adapt to the actual battlefield; do not stall the match to follow a rigid build order.
 
 ## 5. Report and stopping rules
 
