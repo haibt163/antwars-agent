@@ -27,13 +27,13 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 
 ## 2. Preflight
 
-1. Read the live `rules` output once. Look for changes to the challenge route, opponent availability, or house admission.
-2. Call `list_challenge_opponents` (no key needed). Record each handle's `available` flag and `reason`.
-3. Check the current state with `queue_status`, `list_lobbies` and `challenge_status`. Resume an eligible match if one exists. Never create a duplicate queue entry, lobby or challenge.
-4. Read the key only when a documented call needs it. Keep it in session memory. Never print, quote, save, log or commit it.
-5. Do not dump all rules or schemas. Do not run a local mock server, write helper files, or perform speculative transport tests. Do not call `rating` or other tools that are not needed for the route.
-6. Stop the preflight once a route in section 3 is chosen or ruled out.
-
+1. Before any `request_challenge` call, read the repository-root `prompt.md` and `study/last-match.md` once each. Do not read `study/match-notes.md` during a run; it is an optional reference for humans. Do not read any project files after match handoff.
+2. Read the live `rules` output once. Look for changes to the challenge route, opponent availability, or house admission.
+3. Call `list_challenge_opponents` (no key needed). Record each handle's `available` flag and `reason`.
+4. Check the current state with `queue_status`, `list_lobbies` and `challenge_status`. Resume an eligible match if one exists. Never create a duplicate queue entry, lobby or challenge.
+5. Read the key only when a documented call needs it. Keep it in session memory. Never print, quote, save, log or commit it.
+6. Do not dump all rules or schemas. Do not run a local mock server, write helper files, or perform speculative transport tests. Do not call `rating` or other tools that are not needed for the route.
+7. Stop the preflight once a route in section 3 is chosen or ruled out.
 ## 3. Choose a route
 
 ### A. Challenge a house handle
@@ -77,27 +77,18 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 
 ## 4. Match handoff and play
 
-1. When a match is confirmed, call `locate_match` and use only the exact `mcpUrl`, credentials and session details it returns. Never guess an endpoint.
+1. When a match is confirmed, call `locate_match` and use only the exact `mcpUrl`, credentials and session details it returns. Do not read project files after this handoff; all required strategy files were read during preflight.
 2. If match tools are dynamically mounted, use them. Otherwise use the runtime's supported Streamable HTTP MCP client against that exact URL: initialize, capture and reuse `Mcp-Session-Id` when supplied, send the initialized notification, call `tools/list`, then call the documented match tools. If the real endpoint cannot be reached, report the exact error and stop. Do not test against a mock first.
-3. Read the match briefing, live rules, tool schemas, command limits and idle limit. Follow the briefing if it differs from this file.
-4. Start playing promptly. Never let more than 60 seconds pass between accepted game-tool calls. Observe about every 15-20 seconds during the opening and fights, and about every 30 seconds in calm periods. Refused calls do not reset the idle clock.
+3. Use the handoff's initial briefing/board data only as needed to make the opening selection. If the live rules offer `pick_nest`, issue it as the first game action immediately; do not read files, scout or perform extended analysis first. If the pick window has closed, accept the auto-placed queen and do not retry.
+4. Immediately after the nest action, follow the opening sequence in `prompt.md`. Then observe about every 15-20 seconds during the opening and fights, and about every 30 seconds in calm periods. Never let more than 60 seconds pass between accepted game-tool calls; refused calls do not reset the idle clock.
 5. Use `order`, `count_mark`, `found_queen` and `set_brood` only according to their live schemas and limits. After consequential actions, check whether each command was accepted and adapt to the board.
 6. Continue until the server confirms `matchOver: true` (or its documented equivalent), the winner or draw, and the result.
-
 ## 4A. Play plan
 
-Before gameplay, read the project-root `prompt.md` once and apply its strategic priorities. If `study/last-match.md` exists, read it once for the latest match-specific lessons. The historical archive at `study/match-notes.md` is optional reference material; do not load the full archive during the opening if doing so would delay play.
-
-1. **Live rules first.** The match briefing and current rules override every static instruction and historical number in `prompt.md` or the study files.
-2. **Nest first.** If nest selection is available, make `pick_nest` the first gameplay action while its window is open. Do not delay it for lengthy analysis or other commands. If the window has closed, assess the auto-placed queen and adapt rather than retrying.
-3. **Sustainable economy.** Preserve worker production. Never switch every surviving queen to soldiers-only brood simultaneously. Use per-queen brood only if the live schema supports it; otherwise use the live-supported colony setting. Spend food deliberately and found additional queens only when placement and defence are viable.
-4. **Protect territory.** Keep a home defence reserve, maintain useful coverage and interrupt an opponent's qualifying territory run before its live hold condition completes. Do not trade away home ground for uncoordinated attacks.
-5. **Scout and attack selectively.** Locate enemy positions before committing forces. Prefer coordinated soldier attacks against worthwhile targets; do not spam attacks into concentrated defenders.
-6. **Protect queens and marks.** Treat any queen HP loss as urgent. Verify queen IDs before queen-specific commands. Refresh critical marks before live expiry and only within current placement reach and cooldown limits.
-7. **Respect command limits.** Do not use a blind 10-second command loop. Check acceptance and errors, correct refused actions instead of repeating them, and maintain the observation/idle discipline in section 4.
-
-Adapt to the actual battlefield; do not stall the match to follow a rigid build order.
-
+All gameplay strategy is in the repository-root `prompt.md`, read once during preflight (section 2).
+Do not read `prompt.md`, `study/last-match.md`, `study/match-notes.md` or any other project file after match handoff.
+The live match briefing and rules take precedence over historical targets in `prompt.md`.
+Use the observation, accepted-call and idle cadence in section 4.
 ## 5. Report and stopping rules
 
 - Report the route used (A, B, D, or none), the challenger name shown by the server, the opponent identity and type, match start and end, winner or draw, duration if provided, final stats, and important confirmed events.
