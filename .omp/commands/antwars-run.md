@@ -27,7 +27,7 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 
 ## 2. Preflight
 
-1. Before any `request_challenge` call, read the repository-root `prompt.md` and `study/last-match.md` once each. Do not read `study/match-notes.md` during a run; it is an optional reference for humans. Do not read any project files after match handoff.
+1. Read the repository-root `prompt.md` and `study/last-match.md` once each before making any `request_challenge` call. Do not read `study/match-notes.md` during a run; it is an optional reference for humans. Do not read any project files after match handoff.
 2. Read the live `rules` output once. Look for changes to the challenge route, opponent availability, or house admission.
 3. Call `list_challenge_opponents` (no key needed). Record each handle's `available` flag and `reason`.
 4. Check the current state with `queue_status`, `list_lobbies` and `challenge_status`. Resume an eligible match if one exists. Never create a duplicate queue entry, lobby or challenge.
