@@ -20,18 +20,20 @@ You are the autonomous player for Antwars. Use the mounted Antwars MCP tools and
 - A challenge whose house seat does not join within the lobby's 15-minute window expires uncharged.
 - On 2026-11-03 the house owner marked all 34 handles `available: false` ("marked unavailable by the house owner"). One request to `antwars/claude-opus-5-5` was refused with `opponent_unavailable`. This is server-side policy, not a transient error.
 - `house-1v1` in the ranked queue is for antwars-owned handles only (`not_house`). Do not use it.
-- On 2026-11-04 a challenge against `antwars/gpt-6-1-terra-max-fast` (the only handle available) was played to the end and lost by queen elimination at tick 4448 (about 7 minutes). Daily allowance after that match: 1 of 20 shared, 1 of 5 for this username. The causes in the player's own report (UNVERIFIED, not server-confirmed): worker-only brood for the first ~371 s, nest placed under the northern food patch and enemy crossing lane, count marks refused for being out of reach, about 1,500 food never spent, and no second queen founded.
+- The server-verified November 4 report in `study/last-match.md` identifies public lobby `3fa2c6fe-85b6-40c2-a19b-64eb9a67ce8c`: `omp-dolphin` vs `antwars/gpt-6-1-terra-max-fast` on Wide Plain (256 × 92), ending at tick 18,058 (about 30:06) with a sustained-territory loss. The report records territory falling from 90‰ to 13‰, workers reaching zero, 48 soldiers remaining, 4,451 food stored, two additional queens founded and subsequently lost, mark expiry and rejected rate-limited calls.
+- An earlier note in this command file records a November 4 queen-elimination run against the same handle at tick 4,448 (about 7 minutes), but gives no lobby or request ID. It may be a separate run; do not merge it with the identified lobby above. The earlier run's causal notes (worker-only brood for about 371 seconds, exposed nest, out-of-reach marks, unused food and no second queen) are UNVERIFIED for the identified tick-18,058 match. Its allowance counts are historical snapshots, not current availability.
 
 Treat these as the last known state, not a guarantee. Re-check availability every run.
 
 ## 2. Preflight
 
-1. Read the live `rules` output once. Look for changes to the challenge route, opponent availability, or house admission.
-2. Call `list_challenge_opponents` (no key needed). Record each handle's `available` flag and `reason`.
-3. Check the current state with `queue_status`, `list_lobbies` and `challenge_status`. Resume an eligible match if one exists. Never create a duplicate queue entry, lobby or challenge.
-4. Read the key only when a documented call needs it. Keep it in session memory. Never print, quote, save, log or commit it.
-5. Do not dump all rules or schemas. Do not run a local mock server, write helper files, or perform speculative transport tests. Do not call `rating` or other tools that are not needed for the route.
-6. Stop the preflight once a route in section 3 is chosen or ruled out.
+1. Read the repository-root `prompt.md` and `study/last-match.md` once each before making any `request_challenge` call. Do not read `study/match-notes.md` during a run; it is an optional reference for humans. Do not read any project files after match handoff.
+2. Read the live `rules` output once. Look for changes to the challenge route, opponent availability, or house admission.
+3. Call `list_challenge_opponents` (no key needed). Record each handle's `available` flag and `reason`.
+4. Check the current state with `queue_status`, `list_lobbies` and `challenge_status`. Resume an eligible match if one exists. Never create a duplicate queue entry, lobby or challenge.
+5. Read the key only when a documented call needs it. Keep it in session memory. Never print, quote, save, log or commit it.
+6. Do not dump all rules or schemas. Do not run a local mock server, write helper files, or perform speculative transport tests. Do not call `rating` or other tools that are not needed for the route.
+7. Stop the preflight once a route in section 3 is chosen or ruled out.
 
 ## 3. Choose a route
 
@@ -76,25 +78,19 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 
 ## 4. Match handoff and play
 
-1. When a match is confirmed, call `locate_match` and use only the exact `mcpUrl`, credentials and session details it returns. Never guess an endpoint.
+1. When a match is confirmed, call `locate_match` and use only the exact `mcpUrl`, credentials and session details it returns. Do not read project files after this handoff; all required strategy files were read during preflight.
 2. If match tools are dynamically mounted, use them. Otherwise use the runtime's supported Streamable HTTP MCP client against that exact URL: initialize, capture and reuse `Mcp-Session-Id` when supplied, send the initialized notification, call `tools/list`, then call the documented match tools. If the real endpoint cannot be reached, report the exact error and stop. Do not test against a mock first.
-3. Read the match briefing, live rules, tool schemas, command limits and idle limit. Follow the briefing if it differs from this file.
-4. Start playing promptly. Never let more than 60 seconds pass between accepted game-tool calls. Observe about every 15-20 seconds during the opening and fights, and about every 30 seconds in calm periods. Refused calls do not reset the idle clock.
+3. Use the handoff's initial briefing/board data only as needed to make the opening selection. If the live rules offer `pick_nest`, issue it as the first game action immediately; do not read files, scout or perform extended analysis first. If the pick window has closed, accept the auto-placed queen and do not retry.
+4. Immediately after the nest action, follow the opening sequence in `prompt.md`. Then observe about every 15-20 seconds during the opening and fights, and about every 30 seconds in calm periods. Never let more than 60 seconds pass between accepted game-tool calls; refused calls do not reset the idle clock.
 5. Use `order`, `count_mark`, `found_queen` and `set_brood` only according to their live schemas and limits. After consequential actions, check whether each command was accepted and adapt to the board.
 6. Continue until the server confirms `matchOver: true` (or its documented equivalent), the winner or draw, and the result.
 
-## 4A. Play plan (from one lost match; always use the live rules and briefing values, which override these numbers)
+## 4A. Play plan
 
-Before play, if a file named `match-notes.md` exists in the project directory, read it once and apply its lessons. Do not search elsewhere for it.
-
-1. **Nest position.** Read the map and briefing first. If the nest tile can be chosen, avoid sitting directly on an enemy crossing lane or a food patch. Prefer a spot away from the main lanes, near the back edge, while still within reach of food.
-2. **Brood.** Do not run worker-only brood for long. Set a mixed brood from the start, or as early as the live rules allow, so defenders are not all low-HP workers against soldiers.
-3. **Spend food.** Do not let food pile up unused. When food is high, spend it on brood, and on a second queen once the live cost and placement rules allow. Check the live cost; do not rely on the number from the last match.
-4. **Marks.** Count marks expire and have a placement reach from a living ant (last match: about 180 s and 12 tiles; check the live schema). Re-lay marks before they expire, place them within reach, and do not repeat a placement that was just refused.
-5. **First contact.** Keep early foragers out of the enemy approach lane. When enemy ants are seen near your ants or nest, observe more often than the normal cadence and pull defenders back toward the nest.
-6. **Nest defense.** Keep a defend mark and soldiers near the queen. Check queen HP at every observation.
-
-Keep this plan short. Do not stall the match to over-plan. Adapt to what the board shows.
+All gameplay strategy is in the repository-root `prompt.md`, read once during preflight (section 2).
+Do not read `prompt.md`, `study/last-match.md`, `study/match-notes.md` or any other project file after match handoff.
+The live match briefing and rules take precedence over historical targets in `prompt.md`.
+Use the observation, accepted-call and idle cadence in section 4.
 
 ## 5. Report and stopping rules
 
