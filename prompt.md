@@ -72,7 +72,7 @@ When triggered:
 
 Source: `study/maps.md`. Water is fixed per map; rocks are random each match and never sealed a lane. Boxes: standard maps enemy x0–31 and ours x96–127; Wide Plain enemy x0–63 and ours x192–255. Enemy extra-queen cells are the 8×8 cell whose top-left is (x,y), from founding events by the left colony (CONFIRMED, n shown). The lane to push is INFERRED: the lane that leads to the commonest enemy extra cell.
 
-- **Overall:** the enemy's first extra queen is in the southern half of its side in 155 of 253 cases (my recount from `study/maps.md` Appendix C); on Central Lake, Isthmus, Three Crossings and Twin Shields it is south in about 2 of 3 or more. Enemy extras sit in their own half, not at the mirror of ours.
+- **Overall:** the enemy's first extra queen is in the southern half of its side in 149 of 253 cases (my recount from `study/maps.md` Appendix C); on Central Lake, Isthmus, Three Crossings and Twin Shields it is south in about 2 of 3 or more. Enemy extras sit in their own half, not at the mirror of ours.
 - **Three Crossings** (n=37) and **v2** (n=12): three 8-tile gates at y16–23, 44–51, 72–79 in a water wall at x≈60–67 (v2 x56–71). Enemy extras (32,72) n=10, then (48,16) n=6. Push the south gate y72–79 first.
 - **Central Lake** (n=30) and **v2** (n=12): lake x44–83 (v2 x40–87), lanes north y0–23 and south y72–95. Enemy extras (32,72) n=10, (48,16) n=6. South lane leads to the first cell, north lane to the second; choose by what the first observations show.
 - **Open Field** (n=60): no water, no choke. Enemy extras (32,72) n=12, (48,16) n=7, (32,64) n=6. Push on one row; do not spread.
