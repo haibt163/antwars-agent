@@ -63,6 +63,7 @@ When triggered:
 
 ## Queen hunt
 
+- The enemy start queen is somewhere in its own start box, weighted toward the box centre (for example (16.5,48.5) on the 96-tile maps). Do not assume it mirrors ours.
 - Enemy queens die near their own start box, but the enemy start queen is NOT at the mirror of ours (Central Lake v2: ours (112.5,28.5), theirs (20.5,21.5)). Scout inside the enemy box with stepped marks, then re-observe before ordering.
 - When a queen is seen, record tile, HP and tick, and put at least 10 soldiers next to it. Stripping enemy-held tiles also blocks their founding.
 - A queen that leaves sight is not dead unless the server says so.
