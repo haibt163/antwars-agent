@@ -2241,3 +2241,71 @@ central-lake-v2 128x96: enemy c0 x0-31; lanes y0-23/y72-95 [I n=12]; stage (88,1
 
 Block size: 1423 bytes (limit 1,536).
 
+## Start-queen tiles
+
+Addendum to this study, same public feed and logs, fetched again on 2026-11-05. **No queue, lobby, challenge or match tool was called, and the identity key was not read.**
+
+| Check | Result | Label |
+|---|---|---|
+| `GET https://antwars.ai/matches` | 200, `application/json`, 14 pages, 278 rows | CONFIRMED |
+| Feed extent at re-check | oldest `2026-10-25T07:51:52.474Z`, newest `2026-11-05T07:23:47.410Z` | CONFIRMED |
+| 1v1 rows now | 271 = the 269 of the main study plus two newer `kain` challenges (`47853494`, `53834555`); the feed now carries 6 `kain` challenge rows | CONFIRMED |
+| `GET https://antwars.ai/matches/<id>` | 200 on all 271; 271/271 parsed, 0 failures | CONFIRMED |
+| Field that carries the start-queen tile | `setup.queens` holds one integer pair per colony; tile coordinates are that value ÷ 256. `startingQueenIds` is `[[0],[0]]` in 271/271 logs: exactly one starting queen per colony, id 0. Checked against the `queenLost` record of that same starting queen in 15 sampled logs: 11/11 positions identical. The same division reproduces the report values (112.5,28.5) and (20.5,21.5) | CONFIRMED |
+
+Per-map `n` is one higher than the main study on Wide Plain (37 vs 36) and Central Lake v2 (13 vs 12) because of the two newer rows.
+
+### Where the start queen sits
+
+| Map | Colony | n | x min / median / max | y min / median / max | Distinct tiles | Commonest tile (count) |
+|---|---|---|---|---|---|---|
+| Three Crossings | 0 | 37 | 5.5 / 18.5 / 30.5 | 5.5 / 35.5 / 72.5 | 26 | (16.5,48.5) 6 |
+| Three Crossings | 1 | 37 | 100.5 / 110.5 / 117.5 | 8.5 / 36.5 / 60.5 | 26 | (112.5,48.5) 8 |
+| Three Crossings v2 | 0 | 12 | 10.5 / 17.0 / 25.5 | 11.5 / 20.0 / 48.5 | 12 | (25.5,29.5) 1 |
+| Three Crossings v2 | 1 | 12 | 105.5 / 111.5 / 120.5 | 17.5 / 23.5 / 36.5 | 12 | (114.5,17.5) 1 |
+| Central Lake | 0 | 30 | 6.5 / 19.0 / 30.5 | 17.5 / 34.5 / 78.5 | 23 | (16.5,48.5) 6 |
+| Central Lake | 1 | 30 | 96.5 / 111.5 / 120.5 | 24.5 / 48.5 / 74.5 | 14 | (112.5,48.5) 10 |
+| Central Lake v2 | 0 | 13 | 5.5 / 16.5 / 28.5 | 5.5 / 21.5 / 48.5 | 12 | (10.5,20.5) 2 |
+| Central Lake v2 | 1 | 13 | 100.5 / 110.5 / 112.5 | 10.5 / 30.5 / 48.5 | 11 | (111.5,48.5) 2 |
+| Open Field | 0 | 60 | 4.5 / 16.5 / 26.5 | 4.5 / 38.5 / 48.5 | 36 | (16.5,48.5) 11 |
+| Open Field | 1 | 60 | 97.5 / 111.5 / 120.5 | 0.5 / 38.5 / 48.5 | 36 | (112.5,48.5) 18 |
+| Isthmus | 0 | 25 | 3.5 / 16.5 / 27.5 | 10.5 / 25.5 / 48.5 | 21 | (16.5,48.5) 4 |
+| Isthmus | 1 | 25 | 100.5 / 111.5 / 126.5 | 0.5 / 34.5 / 75.5 | 19 | (112.5,48.5) 6 |
+| Wide Plain | 0 | 37 | 10.5 / 34.5 / 50.5 | 19.5 / 25.5 / 80.5 | 35 | (32.5,33.5) 2 |
+| Wide Plain | 1 | 37 | 207.5 / 219.5 / 228.5 | 16.5 / 31.5 / 55.5 | 32 | (224.5,46.5) 4 |
+| Twin Shields | 0 | 24 | 8.5 / 19.0 / 31.5 | 15.5 / 25.5 / 48.5 | 20 | (16.5,48.5) 3 |
+| Twin Shields | 1 | 24 | 99.5 / 111.0 / 118.5 | 10.5 / 24.0 / 48.5 | 22 | (112.5,48.5) 3 |
+| Four Lanes | 0 | 33 | 12.5 / 18.5 / 30.5 | 24.5 / 39.5 / 64.5 | 26 | (15.5,63.5) 4 |
+| Four Lanes | 1 | 33 | 101.5 / 110.5 / 112.5 | 16.5 / 41.5 / 64.5 | 25 | (112.5,64.5) 4 |
+
+- **Not fixed per map: it is random inside the start box.** CONFIRMED (n=271 matches, 542 start queens). Every map-colony pair spreads; the commonest single tile never exceeds 18 of 60 (Open Field, colony 1) and is 1–2 of 12–13 on both v2 maps.
+- **Always inside its own box, always on a tile centre.** 542/542 positions lie in the colony's own box (the main study's 538/538 over its 269 matches is the same check on the smaller sample), and 542/542 coordinates end in `.5`. On the 128-wide maps colony 0 never passes x 31.5 and colony 1 never drops below x 96.5; on Wide Plain colony 0 stays inside x 0–63 and colony 1 inside x 192–255. CONFIRMED.
+- **Centre-weighted, with a map-specific spread.** The box-centre tile — (16.5,48.5) for colony 0 and (112.5,48.5) for colony 1 on the 96-tile maps, (112.5,64.5) on Four Lanes, (224.5,46.5) on Wide Plain — is the single commonest start tile for both colonies on five maps (Three Crossings, Central Lake, Open Field, Isthmus, Twin Shields), with shares from 3/24 to 18/60, and for colony 1 on Four Lanes and Wide Plain. The y span still differs sharply between maps of the same height (Open Field 0.5–48.5 against Central Lake 17.5–78.5, both 96 tiles tall), and rules version does not explain it (rules 26: 4.5–78.5; rules 27: 0.5–75.5). CONFIRMED for the counts. What produces the weighting and the spread (food, terrain, a placement rule) is NOT AVAILABLE.
+
+### Can the enemy start queen be predicted from ours? No.
+
+- **Exact x-mirror** (colony 0 x = 127 − colony 1 x on the 128-wide maps, 255 − x on Wide Plain): 29/271 (11%). Shuffling colony-1 positions within each map expects 19.4, so there is a small excess, concentrated on Open Field (11 observed, 5.9 expected) and Four Lanes (6, 3.8). CONFIRMED for the counts.
+- **Same exact y:** 48/271 (18%) against 28.2 expected under the same shuffle. The excess is on Open Field (19/60), Three Crossings (8/37) and Four Lanes (7/33), and it comes from both colonies picking the same modal y values (48.5 or 64.5), not from a paired draw. CONFIRMED for the counts; the reading is INFERRED.
+- **Per-map Pearson correlation between the two colonies:** x −0.24 to +0.08 (no map shows a relation); y −0.32 to +0.58, the single strong value being Four Lanes y at +0.58 (n=33, 7/33 exact).
+- **Worked example:** Central Lake v2 `96842160`, ours (112.5,28.5), theirs (20.5,21.5). The mirror of ours would be (14.5,28.5): wrong by 6 tiles in x and 7 in y, and the same holds at archive scale (89% of pairs are not mirrors, 82% do not share y).
+- **Verdict:** the enemy start queen is predictable only as "somewhere in its own box, weighted toward the box centre". Plan as if the two placements are independent. INFERRED (n=271).
+
+### Our five challenge matches
+
+Losses first, then wins. We are colony 1 in all five; "our queens" means every colony-1 queen.
+
+| Match | Map | Result | Our start queen | Enemy start queen | First enemy ATTACK | First damage to our queens |
+|---|---|---|---|---|---|---|
+| `40634510` | Three Crossings v2 | lost, `queens_killed`, tick 4,448 | (116.5,24.5) | (17.5,16.5) | tick 2,297, 100 soldiers, (68,26) | tick 4,368, q0 (the start queen); dead at 4,448 |
+| `12946232` | Wide Plain | lost, `sustained_territory`, tick 18,058 | (223.5,46.5) | (29.5,20.5) | tick 4,284, 70 soldiers, (120,44) | tick 10,982, q2; the start queen was never hit |
+| `95914540` | Central Lake v2 | lost, `time_up`, tick 17,999 | (111.5,48.5) | (5.5,5.5) | tick 10,000, 24 soldiers, (42,38) | none — no queen on either side took damage |
+| `84050447` | Four Lanes | won, `queens_killed`, tick 10,126 | (111.5,64.5) | (16.5,48.5) | tick 2,370, 18 soldiers, (51,48) | none |
+| `96842160` | Central Lake v2 | won, `sustained_territory`, tick 16,532 | (112.5,28.5) | (20.5,21.5) | tick 1,589, 14 soldiers, (57,21) | none |
+
+- Our start-queen tile differs in all five matches, which matches the random-inside-the-box rule above: do not hard-code a nest tile, and do not assume the enemy start is the mirror of ours.
+- `40634510` is the only one of the five where our start queen was reached: first hit at tick 4,368 (39,850 of 40,000 HP), dead 80 ticks (8 s) later, at the end tick. That is the same seconds-long death the main study measured (n=544).
+- `12946232` damaged only the two extra queens (q2 first at tick 10,982, q1 at tick 15,942); the start queen survived the whole 18,058 ticks.
+- `95914540` carries no `queenHp` event at all: neither colony's queens were damaged in that match, and it was lost on kills at the time limit.
+
+All tile, tick, size and damage values above are CONFIRMED from the log fields named in the table; the predictability verdicts are INFERRED.
+
