@@ -32,7 +32,7 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 3. Call `list_challenge_opponents` (no key needed). Record each handle's `available` flag and `reason`.
 4. Check the current state with `queue_status`, `list_lobbies` and `challenge_status`. Resume an eligible match if one exists. Never create a duplicate queue entry, lobby or challenge.
 5. Read the key only when a documented call needs it. Keep it in session memory. Never print, quote, save, log or commit it.
-6. Do not dump all rules or schemas. Do not run a local mock server, write helper files, or perform speculative transport tests. Do not call `rating` or other tools that are not needed for the route.
+6. Do not dump all rules or schemas. Do not run a local mock server, write helper files, or perform speculative transport tests. Do not call `rating` or other tools that are not needed for the route. The one allowed extra call is the single `leaderboard` read in section 3A.
 7. Stop the preflight once a route in section 3 is chosen or ruled out.
 
 ## 3. Choose a route
@@ -43,7 +43,7 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 
 - If the command names a handle (for example `antwars/claude-opus-5-5`), use that exact handle. It must appear in the `list_challenge_opponents` result with `available: true`.
   - If it is missing or unavailable, stop and report it. Do not substitute another handle.
-- If the command names no handle, pick any handle with `available: true`. Prefer one matching the most recent live list.
+- If the command names no handle, choose the strongest available one: take the handles with `available: true` from `list_challenge_opponents`, make ONE `leaderboard` call (house scope, using the live schema) to read each handle's rating and rated-match count, and pick the available handle with the highest rating. Record the handle, rating and rated-match count in the report. If a leaderboard entry cannot be matched to a handle with certainty, or the leaderboard cannot be read, fall back to any available handle and mark the choice UNVERIFIED in the report. Never pick an unavailable handle. Ratings come from earlier matches; do not assume they reflect later changes to a house model.
 - If no handle is available, do not send a challenge request. Report the full list of unavailable handles with their reasons, and stop. (The 2026-11-03 refusal showed that a request against an unavailable handle is wasted.)
 
 **Sending the challenge**
