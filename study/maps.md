@@ -22,7 +22,7 @@ Our three server-verified reports map to these feed records:
 |---|---|---|
 | `study/match-loss-2026-11-04.md` (Wide Plain, lost) | `2026-11-04T06-01-10-030Z-112220412946232` | map, colony-1 loss by `sustained_territory` at tick 18,058; extra queens at ticks 5,416 and 7,224 = 9:01.6 and 12:02.4 |
 | `study/match-win-2026-11-04.md` (Four Lanes, won) | `2026-11-04T08-29-16-734Z-14555784050447` | queens founded at ticks 3,233 and 5,988; `queens_killed` at tick 10,126 — the report's exact numbers |
-| `study/last-match.md` (Central Lake v2, won) | `2026-11-04T13-59-00-957Z-272597896842160` | `startedAt 13:59:00.957Z`; queens founded 4,661 and 6,869; `sustained_territory` at tick 16,532 |
+| `study/match-win-2026-11-04-central-lake-v2.md` (Central Lake v2, won) | `2026-11-04T13-59-00-957Z-272597896842160` | `startedAt 13:59:00.957Z`; queens founded 4,661 and 6,869; `sustained_territory` at tick 16,532 |
 
 ## Headline findings
 
