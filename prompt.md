@@ -53,7 +53,7 @@ Default queen roles: queen 0 workers; queen 1 soldiers from founding; queen 2 wo
 When triggered:
 
 - Move every queen except one to soldiers. The remaining queen stays on workers or mixed so income and replacements continue. Never switch all queens to soldiers-only (the Wide Plain loss).
-- At or near the cap, unspent food means production is capped, not food-limited: spend the population on the army instead of holding it at home.
+- At or near the cap, unspent food means production is capped, not food-limited: spend the population on the army instead of holding it at home. Once the cap is reached, `set_brood` changes nothing until ants die, so the worker/soldier mix you want for the endgame has to be set before the cap (VERIFIED, `study/last-match.md`: 512 ants in sight from tick 11,857, and the colony ended with 359 workers against 86 soldiers and 8,780 food unspent).
 - Below the cap, banked food means too few queens (INFERRED). One queen hatches one soldier every 20 ticks or one worker every 10 ticks (Twin Shields log, CONFIRMED), and the win ended with 2,341 food banked at about 64% of the cap. Turn banked food into queens first (800, then 1,600), then soldiers.
 - If food stops growing or workers fall low, put one queen back on workers.
 - Record worker and soldier counts at every observation so the next report can state the real ratio. The 3:1 and 5:1 figures quoted so far are not confirmed by any server log.
@@ -71,6 +71,7 @@ When triggered:
 - The enemy start queen is somewhere in its own start box, weighted toward the box centre (for example (16.5,48.5) on the 96-tile maps), and is NOT at the mirror of ours (Central Lake v2: ours (112.5,28.5), theirs (20.5,21.5)). Enemy extra queens go where the map playbook says. Scout inside the enemy box with stepped marks, then re-observe before ordering.
 - Count the enemy's queens. In the Twin Shields win the enemy had three (start (18.5,23.5), (36.5,68.5) founded at tick 3,029, forward (56.5,22.5) founded at tick 4,877). We killed two, and the one in the playbook's south cell survived untouched. After one lane is cleared, sweep the playbook's other cell with stepped marks before settling into a hold.
 - When a queen is seen, record tile, HP and tick, and put at least 10 soldiers next to it. Stripping enemy-held tiles also blocks their founding.
+- A damaged queen regenerates 1 HP/10 s while no enemy ant is within 6 tiles (live rule), so a strike whose ants die hands the HP back: keep ants on her tile or do not strike. VERIFIED, `study/last-match.md`: the queen at (52,30) fell from 26.35 to 2.65 HP by tick 7,372, read 9.65 HP again at tick 10,188 and survived the match; three marks at (52,24), (52,29) and (52,30) cost 193, 53 and 84 ants for 99, 89 and 118 kills.
 - A queen that leaves sight is not dead unless the server says so.
 - Hold and hunt are not exclusive. Once nothing of the enemy is in sight and its territory is 0, keep the 300 s hold running with ground-holding marks and send the rest of the army to sweep for the remaining queens, keeping a soldier DEFEND on each of our queens. Abandon the sweep only if it empties home ground. A reachable queen kill ends the match sooner than the hold (queens_killed); the Twin Shields hold took 3,000 ticks after the enemy had no ants.
 
