@@ -57,18 +57,13 @@ Decisive server-confirmed events:
   (53,16) by tick 6,371.
 - The enemy's forward nest stood at (52,30). Its queen read 40,000 mHP when first seen at tick 6,563, then 26,350 mHP at
   tick 7,200, 10,900 at 7,250 and 2,650 at 7,372. Our ants on her tile then died and she regenerated: 4,650 mHP at 8,675,
-  8,650 at 9,175 and 9,650 at 10,188. She survived the match. The three ATTACK marks aimed at that nest — (52,24), (52,29)
-  and (52,30) — credited 99, 89 and 118 enemy kills while losing 193, 53 and 84 ants.
+  8,650 at 9,175 and 9,650 at 10,188. She regained 7 HP in total and died at tick 10,323 (public log; see `study/forensics-2026-11-05-open-field.md`). Five ATTACK marks were laid on or beside that nest: (52,24), (52,29), (52,30) at tick 7,251, (52,30) at 9,350 and (52,30) at 9,983. The public log has no per-mark kill credits, so earlier per-mark credits are UNVERIFIED.
 - The enemy worker economy collapsed under that pressure: 51 enemy workers and 13 soldiers in sight at tick 9,900, then 5
   workers and 14 soldiers at 11,360, 12 workers at 12,176 and 20 workers with no soldiers at 14,049. Their territory share
   fell to 19‰ at tick 11,011, rebounded to 109‰ by tick 14,988 as their soldiers spread, then fell back to 28‰ at 16,323.
-- Our own census reached the 512 cap: 510 ants in sight at tick 11,857 and 512 at 14,395; at tick 12,600 that census read
-  386 workers and 125 soldiers. Food rose to 5,543 by tick 14,049 and 8,780 at the end while the colony stayed at the cap,
+- Our colony reached 449–512 ants by tick 14,395 (public log; the cap is reachable from tick 12,606, and "510 in sight at tick 11,857" was wrong: the whole match then held 408 live ants). At tick 12,600 the agent's census read
+  386 workers and 125 soldiers (the caste split cannot be verified from the log). Food rose to 5,543 by tick 14,049 and 8,780 at the end while the colony stayed at the cap,
   so brood changes made after the cap was reached produced no new ants until ants died.
-- The server ended the match at tick 17,999 with `time_up` and `decidedBy: kills`. The server did not return per-colony
-  kill totals; the largest single mark credit observed was 118 kills, and the mid-match strike marks credited 85–118
-  kills each against 53–193 losses.
+- The server ended the match at tick 17,999 with `time_up` and `decidedBy: kills`. The public log gives per-colony deaths: 2,139 enemy deaths against 2,105 of ours, a margin of 34 kills (forensics file). It carries no per-mark kill credits, so earlier per-mark credit figures are UNVERIFIED.
 
-Interpretation, not directly observed: the win came from the kill total rather than the territory hold, since the 6×
-window never lasted 300 s; and the forward queen at (52,30) survived because her 40 HP plus 1 HP/10 s regeneration
-outlasted every strike once our ants on her tile were killed.
+Interpretation, not directly observed: the win came from the kill total (a 34-kill margin) rather than the territory hold, since the 6× window never lasted 300 s (ten runs, longest 1,708 ticks); and the forward queen at (52,30) lived to tick 10,323 because our ants were near her only about half the time, so she regained 7 HP before the strike that killed her.
