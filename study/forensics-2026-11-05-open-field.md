@@ -30,7 +30,7 @@ Read-only analysis of the public match log. **No match tool was called, no lobby
 
 CONFIRMED (n = 5 `queenFounded`, 2 `queenLost`, 2 setup queens from `setup.initialQueens` = `[[{19,17}], [{110,23}]]`).
 
-**Did any enemy queen die? Yes — two, both colony 0.** Our colony lost **no** queen (`queenLost` for colony 1: 0 events; `queenHp` for colony 1: 0 samples), so "No queen was lost by either side" in `study/last-match.md` is wrong on the enemy half. What killed them:
+**Did any enemy queen die? Yes — two, both colony 0.** Our colony lost **no** queen (`queenLost` for colony 1: 0 events; `queenHp` for colony 1: 0 samples), so "No queen was lost by either side" in `study/match-win-2026-11-05-open-field.md` is wrong on the enemy half. What killed them:
 
 | Enemy queen | Tile | Founding | First damage | Death | Evidence |
 |---|---|---|---|---|---|
@@ -79,7 +79,7 @@ Consequences that the log does support (INFERRED unless stated):
 - After 16,137 all three of our queens were on soldiers, so every colony-1 hatch from then on is a soldier (CONFIRMED for the brood, INFERRED for the ant). The colony was at or near the cap for that whole stretch (14,395: 449–512; 17,900: 253–495), so those hatches only replaced the dead — 472 colony-1 deaths between 14,000 and 17,999 against ~450 colony-1 births in the same window (CONFIRMED deaths; births partly inside the unattributed bucket).
 - Hatch-capacity weighting (INFERRED, weak): if unattributed births are split in proportion to each colony's maximum hatch rate at the birth tick, about 60% belong to colony 1. That would put 17,900 at roughly 400 ours and 150 enemy — but food limits hatching, so this is a direction, not a count.
 
-**Against the in-sight census in `study/last-match.md`:** the census total of 511 at tick 12,600 (386 workers + 125 soldiers) equals this log's *upper* bound for colony 1 at that tick (462 + 49), i.e. it is consistent only if every unattributed ant was ours — and then it is a colony-wide count, not a sight-limited one. At the end the census read 445 (359 + 86) against a log range of 233–500, which is consistent but proves nothing. At tick 11,857 the census reading of **510 cannot be right**: the whole match held only 408 live ants at that tick (both colonies), and ours was 359–384.
+**Against the in-sight census in `study/match-win-2026-11-05-open-field.md`:** the census total of 511 at tick 12,600 (386 workers + 125 soldiers) equals this log's *upper* bound for colony 1 at that tick (462 + 49), i.e. it is consistent only if every unattributed ant was ours — and then it is a colony-wide count, not a sight-limited one. At the end the census read 445 (359 + 86) against a log range of 233–500, which is consistent but proves nothing. At tick 11,857 the census reading of **510 cannot be right**: the whole match held only 408 live ants at that tick (both colonies), and ours was 359–384.
 
 ## 3. Our ATTACK marks
 
@@ -109,7 +109,7 @@ Consequences that the log does support (INFERRED unless stated):
 - Simultaneous ATTACK strength (CONFIRMED, sum of `claimed` over live ATTACK marks, 100-tick steps): **maximum 120 ants**, reached during the westward push (ticks 5,400–8,100). After tick 12,000 the maximum was **80** and the mean 32 (12,000–15,000) and 62 (15,000–18,000). Our marks were never bigger than 120 soldiers while the colony held 500+ ants.
 - Marks are cheap to lose: mark 38 at (51,55) ran 1,799 ticks and took 133 of our ants for 73 enemy deaths; mark 27 at (52,24) took 70 for 51. Only four marks finished with more enemy deaths than our losses inside 6 tiles — 29 (53/48), 35 (38/28), 37 (90/64) and 60 (92/69) — and all four were marches onto enemy ground, not defences.
 - All 21 DEFEND marks were also soldier caste except six worker marks at (90,25), (90,50), (90,75), (91,25), (91,50), (91,75) (12–20 ants each, ticks 11,606–13,700) — worker-priced ground holding, not queen guards. There was one FORAGE mark (24 ants at (105,22), tick 149) and three LINE marks (20–24 ants, ticks 14,218–14,876).
-- **Per-mark kill credits: NOT AVAILABLE.** A `mark` record carries `count`, `claimed`, `caste`, `revision`, `laidTick` — no kills, no losses. The colony-wide death deltas between our `count_mark` calls are a different series (largest +143 kills / +116 losses, at tick 16,839) and match none of the report's figures, so `study/last-match.md`'s "credited 99, 89 and 118 enemy kills while losing 193, 53 and 84 ants" cannot be reproduced from the public log, and its "three ATTACK marks aimed at that nest" is wrong: the nest at (52,30) was marked **five** times (7,251, 9,350, 9,983 — and (52,24)/(52,29) before that), and the queen died during mark 37, not before it.
+- **Per-mark kill credits: NOT AVAILABLE.** A `mark` record carries `count`, `claimed`, `caste`, `revision`, `laidTick` — no kills, no losses. The colony-wide death deltas between our `count_mark` calls are a different series (largest +143 kills / +116 losses, at tick 16,839) and match none of the report's figures, so `study/match-win-2026-11-05-open-field.md`'s "credited 99, 89 and 118 enemy kills while losing 193, 53 and 84 ants" cannot be reproduced from the public log, and its "three ATTACK marks aimed at that nest" is wrong: the nest at (52,30) was marked **five** times (7,251, 9,350, 9,983 — and (52,24)/(52,29) before that), and the queen died during mark 37, not before it.
 - Command budget: 20 refusals in the whole match (CONFIRMED) — colony 1: 9 `count_mark` `rate_limited`, 4 `count_mark_not_visible`, 3 `order` `rate_limited`, 1 `found_queen` `queen_too_early`, 1 `found_queen` `queen_cooldown`; colony 0: 2 `found_queen` `queen_tile_not_held`. The archive's "624 `rate_limited` refusals" do not repeat here because we paced the commands.
 
 ## 4. The queen at (52.5, 30.5): every `queenHp` sample
@@ -208,7 +208,7 @@ Deaths per 2,000 ticks (CONFIRMED), colony 0 / colony 1: 44/30, 93/71, 155/148, 
 
 ## Corrections to the reports now on `main`
 
-This PR changes exactly one sentence in `study/last-match.md` (the conditional fix agreed for this task): "No queen was lost by either side." became a sentence naming our zero losses and the enemy's two. Four other statements in that file are contradicted by the log and were **left untouched** because the task froze everything except that one sentence:
+This PR changes exactly one sentence in `study/match-win-2026-11-05-open-field.md` (the conditional fix agreed for this task): "No queen was lost by either side." became a sentence naming our zero losses and the enemy's two. Four other statements in that file are contradicted by the log and were **left untouched** because the task froze everything except that one sentence:
 
 - line 60: "She survived the match." — she died at tick 10,323.
 - line 65: "510 ants in sight at tick 11,857" — the whole match held 408 live ants at that tick; ours was 359–384.
