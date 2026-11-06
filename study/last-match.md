@@ -23,7 +23,9 @@ Server result object: `{"winner":1,"reason":"time_up","decidedBy":"kills","tick"
 
 Final state at tick 18,000 (VERIFIED): three queens alive at 40/40 HP — q0 (110,23), q1 (111,56), q2 (111,90), all on
 soldier brood; territory 1,043 tile areas, share 339‰ against an enemy share of 48‰; 8,780 food stored; in-sight census
-445 own ants (359 workers, 86 soldiers) against 53 enemy ants (7 workers, 46 soldiers). No queen was lost by either side.
+445 own ants (359 workers, 86 soldiers) against 53 enemy ants (7 workers, 46 soldiers). None of our queens was lost;
+the enemy lost two, both recorded `queenLost` in the public log — its forward queen at (52.5, 30.5), founded tick 3,302,
+at tick 10,323, and its queen at (44.5, 62.5), founded tick 5,667, at tick 11,948.
 
 Queen-founding and brood timeline (accepted calls, run log):
 
