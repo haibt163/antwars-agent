@@ -59,8 +59,9 @@ Decisive server-confirmed events:
 - Gate battle in the north lane (water wall x56–71, gate y16–23): enemy strength in sight rose 32 (5451) → 52
   (5626) → 79 (6248) soldiers, then fell to 11 by tick 7664 after our ATTACK marks traded 40 kills for 21 losses
   and 66 for 46 on successive steps.
-- Enemy queen at (29,19): 40,000 mHP when first seen at tick 8083, 30,100 mHP at 8448 with a 70-soldier ATTACK
-  mark on her tile (mark credited 98 kills), and out of sight by tick 8741 while our ants held the tile.
+- Enemy queen at (29,19): 40,000 mHP when first seen at tick 8083; 30,100 mHP at 8448 with mark 23 on her tile at count 40
+  (claimed 40, 24 lost, 45 kills); raised to 70 soldiers at 8591; out of sight by tick 8741 with the mark credited 98 kills,
+  while our ants held the tile.
 - Enemy rebuild: from 11 soldiers at tick 8448 the colony fielded 54 by tick 10165 and 5 by 11575 — its queens kept
   producing after the field army was broken, so the match continued until the queens themselves were found.
 - Enemy queen at (4,46): 40,000 mHP at tick 12777 — near the west map edge, 4 tiles in from x0, not at the box
