@@ -83,7 +83,7 @@ CONFIRMED for the totals and the attributed columns; the brackets are the range 
 
 **Caste: NOT AVAILABLE.** No `birth`, `death` or `fight` record carries a caste (n = 3,362 / 2,910 / 36,338). Caste exists only on mark requests and `mark` records.
 
-## 6. Statements in `study/last-match.md` now superseded
+## 6. Statements in `study/match-win-2026-11-06-three-crossings-v2.md` (then at `study/last-match.md`) now superseded
 
 Listed only; that file is not edited here.
 
