@@ -3,76 +3,72 @@ Result: won. Route A (house challenge), server-confirmed `queens_killed` victory
 ┌─────────────────────┬──────────────────────────────────────────────────────────────────────────────┐
 │ Field               │ Value                                                                        │
 ├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-│ Challenger (server) │ omp-dolphin, colony 1 (Lake Hodges Colony)                                   │
-├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-│ Opponent            │ antwars/gpt-6-1-terra-max-fast — "GPT-6.1 Terra", level max, tier fast,       │
-│                     │ house seat, colony 0                                                         │
-├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-│ Game type           │ House challenge, public lobby fed56bbf…, request bf75a2d6…, slot public-0,    │
-│                     │ unrated                                                                      │
-├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-│ Map / clock         │ Three Crossings v2 128×96, 10 ticks/s, 1800 s limit                          │
-├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-│ Start / end         │ 2026-11-06T10:55:38.106Z / tick 14849 → 1484.9 s (24:45) → ~11:20:23Z         │
-├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-│ Result              │ colony 1 won, queens_killed (decidedBy queens_killed, tick 14849)            │
-├─────────────────────┼──────────────────────────────────────────────────────────────────────────────┤
-│ Lobby outcome       │ colony_1_won (verified via read_lobby); challenge state finished             │
+│ Challenger (server) │ omp-dolphin, colony 1                                                        │
+│ Opponent            │ antwars/claude-opus-5-5-max — "Claude Opus 5.5", level max, house seat,       │
+│                     │ colony 0                                                                     │
+│ Game type           │ House challenge, public lobby 63339777-99d6-431e-9c21-48df4f4dfb8f,          │
+│                     │ request be8881e2-283e-4178-a7b0-60ccb7955980, slot public-0, unrated          │
+│ Map / clock         │ Four Lanes 128×128, 10 ticks/s, 2,700 s limit (27,000 ticks)                 │
+│ Start / end         │ 2026-11-06T13:02:44.113Z / tick 11,541 → 1,154.1 s (19:14) → ~13:21:58Z      │
+│ Result              │ colony 1 won, queens_killed (decidedBy queens_killed, tick 11,541)           │
+│ Lobby outcome       │ colony_1_won (read_lobby); challenge state finished                          │
 └─────────────────────┴──────────────────────────────────────────────────────────────────────────────┘
 
-Server result object: `{"winner":1,"reason":"queens_killed","decidedBy":"queens_killed","tick":14849}`.
+Server result object: `{"winner":1,"reason":"queens_killed","decidedBy":"queens_killed","tick":11541}`.
 
-Final state at tick 14,850 (VERIFIED): four queens alive at 40/40 HP — q0 (110,21) on workers, q1 (110,55),
-q2 (110,90) and q3 (77,21) on soldiers; territory 903.25 tile areas, share 294‰ against an enemy share of 0‰;
-9,440 food stored; in-sight census 512 own ants (362 workers, 150 soldiers) against 0 enemy ants. No enemy queen
-remained in sight. No queen of ours took damage in the match.
+Final state at tick 11,542 (VERIFIED): four queens alive at 40/40 HP — q0 (110,24) on workers, q1 (110,58),
+q2 (110,92) and q3 (110,126) on soldiers; territory 984 tile areas, share 240‰ against an enemy share of 0‰;
+1,362 food stored; in-sight census 768 own ants (405 workers, 363 soldiers) against 0 enemy ants. No queen of
+ours took damage in the match.
+
+Nest and map: the back-quarter strip (x 96–127, full height) held no water or rocks; the nest was picked at
+(110,24) before the clock started.
 
 Queen-founding and brood timeline (accepted calls, run log):
 
 ┌─────────────┬────────────────────────────────────────────────────────────────────────────┐
 │ Tick        │ Action                                                                     │
 ├─────────────┼────────────────────────────────────────────────────────────────────────────┤
-│ 0           │ Nest pick (110,21) accepted before the clock started                       │
-│ 2799        │ Queen 0 brood → workers                                                    │
-│ 2804        │ First mark FORAGE 26 at (99,20); claimed 26 of 61 free ants                │
-│ 3265        │ Queen 1 founded at (110,55) for 400 food; next founding 5065               │
-│ 3721        │ Queen 1 brood → soldiers                                                   │
-│ 5209        │ Queen 2 founded at (110,90) for 800 food; next founding 7009               │
-│ 5316        │ Queen 2 brood → workers                                                    │
-│ 6957        │ Queen 2 brood → soldiers                                                   │
-│ 7132        │ Queen 3 founded at (77,21) for 1,600 food; next founding 8932              │
-│ 7173        │ Queen 3 brood → soldiers                                                   │
+│ 0           │ Nest pick (110,24) accepted before the clock started                       │
+│ 74          │ Queen 0 brood → workers                                                    │
+│ 187         │ First mark FORAGE 26 at (106,36); claimed 26 of 38 free ants               │
+│ 1816        │ Queen 0 brood → mixed (early rush guard)                                   │
+│ 3081        │ Queen 1 founded at (110,58) for 400 food; next founding 4881               │
+│ 3110        │ Queen 1 brood → soldiers                                                   │
+│ 3112        │ Queen 0 brood → workers                                                    │
+│ 4949        │ Queen 2 founded at (110,92) for 800 food; next founding 6749               │
+│ 4993        │ Queen 2 brood → soldiers                                                   │
+│ 11315       │ Queen 3 founded at (110,126) for 1,600 food (food store 1,065 after)       │
+│ 11340       │ Queen 3 brood → soldiers                                                   │
 └─────────────┴────────────────────────────────────────────────────────────────────────────┘
 
-Queen 3 sat 33 tiles from queen 0, outside the back quarter, on ground the army had taken two minutes earlier
-(mark ATTACK 70 at (77,20), tick 5673). All three founding attempts were accepted; none was refused.
+All four foundings were accepted; none was refused. The three extra nests sit on one column 34 tiles apart
+(x = 110, y = 58, 92, 126), all inside our own box.
 
-Territory path (server status share, own‰ / enemy‰): 42/102 at tick 2932, 106/100 at 4693, 158/104 at 5451,
-224/143 at 6248, 306/80 at 11575, 318/25 at 12039, 345/6 at 14151, 294/0 at 14850. The 6× condition was crossed
-from about tick 12,039 but dipped to 5.8× at tick 13,313, so no 300 s hold completed (UNVERIFIED that any window
-ran; the server never reported an early-win trigger).
+Territory path (server status share, own‰ / enemy‰): 16/31 at tick 275, 75/53 at 2,349, 141/47 at 5,730,
+181/62 at 7,619, 186/23 at 8,838, 223/4 at 9,697, 240/0 at 11,542. The early game was the only stretch with
+less territory than the opponent (16‰ against 31‰ at tick 275); the 6× condition was crossed during the
+9,000s and held to the end, and the match ended by queen elimination before any 300 s hold completed.
 
 Decisive server-confirmed events:
 
-- Enemy contact from tick 3,725: 11 enemy soldiers at (84–93, 18–27) inside the north lane, already mauling our
-  foragers — the FORAGE mark had lost 57 workers and credited 16 kills by then.
-- Gate battle in the north lane (water wall x56–71, gate y16–23): enemy strength in sight rose 32 (5451) → 52
-  (5626) → 79 (6248) soldiers, then fell to 11 by tick 7664 after our ATTACK marks traded 40 kills for 21 losses
-  and 66 for 46 on successive steps.
-- Enemy queen at (29,19): 40,000 mHP when first seen at tick 8083; 30,100 mHP at 8448 with mark 23 on her tile at count 40
-  (claimed 40, 24 lost, 45 kills); raised to 70 soldiers at 8591; out of sight by tick 8741 with the mark credited 98 kills,
-  while our ants held the tile.
-- Enemy rebuild: from 11 soldiers at tick 8448 the colony fielded 54 by tick 10165 and 5 by 11575 — its queens kept
-  producing after the field army was broken, so the match continued until the queens themselves were found.
-- Enemy queen at (4,46): 40,000 mHP at tick 12777 — near the west map edge, 4 tiles in from x0, not at the box
-  centre and not the mirror of our (110,21). An ATTACK mark was laid on (5,46) at tick 13084 and she was out of
-  sight by 13313.
-- Enemy queen at (38,72): 40,000 mHP at tick 14516 in the playbook's south extra-queen cell. ATTACK 100 was laid
-  on (37,72) at tick 14679 and the server ended the match 170 ticks later at tick 14849 with `queens_killed`.
+- Enemy contact in the open middle lane (y40–55) from tick 2,412; enemy ants at (48–50, 42–48) by tick 3,184,
+  rising to 51 soldiers in sight by tick 4,464, 45 of them around (48,40) and (48,48) — their two playbook
+  extra-queen cells.
+- Middle-lane interception: ATTACK 60 soldiers at (96,50), laid at tick 4,513 on our own edge of the lane;
+  it expired with 8 kills and 0 losses.
+- South push: ATTACK 90 at (96,82) laid at tick 5,563 and stepped through (80,80), (68,80), (56,80), (40,80),
+  (30,84) and (14,84). The (56,80) stage traded 147 kills for 189 losses, the worst trade of the match; the
+  middle mark at (40,48) stood at 16 kills for 7 losses when read at tick 9,697.
+- Enemy queen at (40,80): 40,000 mHP at ticks 7,619 and 7,764; she left `enemyQueens` at tick 8,043 with 73
+  of our soldiers inside 6 tiles of her tile. Death INFERRED.
+- Enemy queen at (20,39): 40 HP at tick 9,790; out of sight by 10,516 with our nearest ant 13.0 tiles away,
+  so she was alive at that point. ATTACK 80 was laid at (30,40) at tick 11,448; the server ended the match
+  93 ticks later at tick 11,541 with `queens_killed`.
+- Enemy field army: 58 soldiers in sight at tick 4,427 and 0 by tick 7,049; enemy ants in sight 0 at match
+  end. Enemy territory share peaked at 70‰ (tick 5,115) and finished at 0‰.
 
-Interpretation, not directly observed: the win came from queen elimination, not from the territory hold, since the
-6× ratio never lasted 300 s (label UNVERIFIED). The individual death ticks of the three enemy queens were never
-reported — enemy `queen_lost` events are not surfaced to the opposing seat — so each death is inferred from the
-queen leaving sight with our ants on her tile; only the final `queens_killed` verdict is server-confirmed.
-The 512-ant in-sight reading at tick 13,313 happens to equal the smallest published colony cap, but the cap for this
-seed was not read (UNVERIFIED).
+Interpretation, not directly observed: enemy queen deaths are not surfaced to the opposing seat, so each
+death is inferred from the queen leaving sight while our ants held her tile; only the final `queens_killed`
+verdict is server-confirmed. The fourth queen was founded 226 ticks before the end and is assumed to have
+contributed nothing measurable (UNVERIFIED).
