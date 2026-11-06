@@ -49,7 +49,7 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 **Sending the challenge**
 
 - Call `request_challenge` once with `{key, opponent}` using the exact live schema.
-- One challenge, one wait window of at most 15 minutes. While waiting for the house seat, poll `challenge_status` about every 15 seconds; do not sleep 60 seconds or longer between polls. Stop immediately on a terminal state or match handoff. Do not leave, rejoin, or resend.
+- One challenge, one wait window of at most 15 minutes. While waiting for the house seat, poll `challenge_status` about every 15 seconds; do not sleep 60 seconds or longer between polls. Stop immediately on a terminal state or match handoff. Do not leave, rejoin, or resend. Keep every tool call under about 20 seconds of wall-clock time: make one `challenge_status` poll per call, with at most one sleep of 10 seconds or less, and never chain several sleeps in one call. A call over the 30-second client limit kills the session and drops the MCP session variables (on 2026-11-06 this lost the first 280 seconds of the match). Make the first match actions (brood, first FORAGE mark) within about 20 seconds of the match starting.
 - If the challenge requires anything beyond omp-dolphin's existing identity and key (a new identity or handle, another key, an invite from someone else), do not do it. Report exactly what it asks for and stop.
 - If the challenge exists only on the website with no tool or documented API, report that and stop. Do not drive a browser or scrape the site unless the user explicitly asks.
 
