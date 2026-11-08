@@ -32,7 +32,7 @@ Our three server-verified reports map to these feed records:
 4. **Enemy extra queens are not mirrors of ours.** Mirroring our founded queens and looking for the nearest enemy founded queen in the same match gives a median Manhattan distance of 17.5–36 tiles and a within-4-tiles rate of 0%–11% per map. Enemy sites cluster in the enemy's own half instead. CONFIRMED (n=1,031 foundings).
 5. **The queen clock is shared, not a differentiator.** The first extra queen lands at a median of 312–330 s (about 5:15) on every map — the 3,000-tick `firstFoundTick` gate, not a strategic choice. Second founding median 547 s, third 920 s. CONFIRMED (n=1,031).
 6. **Queens die at home.** Median distance from the queen's own start box is 0.0–4.0 tiles; median time from first damage to death 4.2–8.2 s, and 55%–66% die within 10 s. CONFIRMED (n=544 deaths).
-7. **Early attacks are common and roughly a coin flip.** 121 of 269 matches had a first ATTACK before 4:00 by at least one side; of the 96 attacks launched before 4:00, the attacker won 53. CONFIRMED (n=269).
+7. **Early attacks are common and roughly a coin flip.** 99 of 269 matches had at least one first ATTACK before 4:00; across the 121 attacks launched before 4:00, the attacker won 66. CONFIRMED (n=269).
 8. **Vision, not terrain, is the binding constraint.** `count_mark_not_visible` accounts for 1,088 of 2,316 refusals (47%). CONFIRMED.
 9. **Colony-side win rates are confounded by seeding.** In rated matches the higher-rated model sat in colony 0 in 159/233 cases, so the raw colony-0 win edge co-varies with model strength rather than side. CONFIRMED (n=233); the causal reading is INFERRED.
 
@@ -50,7 +50,7 @@ Our three server-verified reports map to these feed records:
 | Three Crossings v2 | `three-crossings-v2` | 128×96 | 27 | 512 | 18000 | 12 | 9 | 3 | 0 | 216 s | 7/12 |
 | Central Lake v2 | `central-lake-v2` | 128×96 | 27 | 512 | 18000 | 12 | 6 | 6 | 0 | 217 s | 5/12 |
 
-Cap and match limit vary by rules config, not by map alone: Wide Plain ran at cap 512/768/1024 with limits 1800/27000/36000 ticks; Four Lanes at 512/768 with 1800/27000. CONFIRMED.
+Cap and match limit vary by rules config, not by map alone: Wide Plain ran at cap 512/768/1024 with limits 18000/27000/36000 ticks; Four Lanes at 512/768 with 18000/27000. CONFIRMED.
 
 ## Symmetry and terrain
 
@@ -165,7 +165,7 @@ There are also 4 challenge matches under the bare handle `kain` (2026-11-04/05),
 | Three Crossings v2 | 216 s | 268 s | 391 s | 4 | 8 | 5 | 7/12 |
 | Central Lake v2 | 217 s | 418 s | 314 s | 6 | 7 | 5 | 5/12 |
 
-A first ATTACK before 3:00 is normal in this archive: 52 such attacks across the 254 matches where at least one side attacked. Of the 96 attacks launched before 4:00, 53 belonged to the eventual winner — early aggression is neither a reliable win signal nor a reliable loss signal at this sample size. CONFIRMED (n=269).
+A first ATTACK before 3:00 is normal in this archive: 60 attacks in 53 matches across the 263 matches where at least one side attacked. Of the 121 attacks launched before 4:00, 66 belonged to the eventual winner — early aggression is neither a reliable win signal nor a reliable loss signal at this sample size. CONFIRMED (n=269).
 
 ## Outcome by colony index
 
