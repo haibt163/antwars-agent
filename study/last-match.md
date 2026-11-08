@@ -34,20 +34,23 @@ Queen-founding and brood timeline (accepted calls, run log):
 | 9,646 | Queen 2 brood → soldiers                                                |
 | 9,770 | Queen 2 brood → workers                                                 |
 
-The first extra queen came at 12:36, far behind the 5:00–5:30 target; before it we were a one-queen colony, and
-no further extra was possible: with the nest at y48 on a 96-tile box, no tile can be both ≥32 tiles from it and
-≥32 from a nest at y15 or y82.
+The first extra queen came at 12:36, far behind the 5:00–5:30 target; before it we were a one-queen colony. No
+third extra was founded because we never held a tile at least 32 tiles from all three nests: with the nests at
+(16,15), (16,48) and (16,82) the only such ground on this map is north-east land and the far lanes, which our
+territory never reached.
 
 Decisive server-confirmed events:
 
 - Enemy contact at tick 7,819: 72 enemy ants, 52 of them soldiers, in one block at x25–31, y39–55 — 9–15 tiles
-  east of queen 0. From tick 7,819 to 10,595 our soldier count in sight rose 22 → 145 while the enemy fed in
-  74–85 ants per wave.
+  east of queen 0. From tick 7,819 to 10,595 our soldier count in sight rose 22 → 145; the enemy attacked in
+  three soldier waves of 52 (tick 7,819), 55 (north lane, tick 10,595) and 49 (south lane, tick 14,094).
 - Queen 0 reached 9.1 HP at tick 8,976 (from 40 HP); she healed to 22.1 HP by 10,595 once the first wave died,
   and was killed at tick 13,036 by a later wave.
-- Defence marks traded badly: DEFEND 50 soldiers on queen 0 (laid tick 7,982) finished with 99 kills and 83 of
-  its own ants lost; the second DEFEND at (17,47) stood at 10 kills for 2 lost when read at tick 9,895; a
-  DEFEND 60 on queen 1 (laid 12,644) was still claiming 60 when the last wave arrived.
+- The defence marks won their exchanges but not the attrition: DEFEND 50 soldiers on queen 0 (laid tick 7,982)
+  finished with 99 kills for 83 of its own ants lost (1.2:1), and the second DEFEND at (17,47) stood at 10 kills
+  for 2 lost (5:1) when read at tick 9,895. Our only marks beyond x=35 were the FORAGE at (37,18) and the
+  ATTACK at (40,72), so the waves were never intercepted on their approach; a DEFEND 60 on queen 1 (laid
+  12,644) was still claiming 60 when the last wave arrived.
 - Territory (own‰): 27 at tick 63, 147 at 2,052 (452 tile areas), peak 131‰/404 tile areas at 10,595, 7 tile
   areas by 15,511, 0 at the end. The 6× territory condition was never approached.
 - Enemy routes: a 55-soldier push arrived through the north lane (x29–32, y12–23) at tick 10,595, and ~49 enemy
