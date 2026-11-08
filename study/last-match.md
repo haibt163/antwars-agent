@@ -3,10 +3,8 @@ Result: lost. Route D (private lobby with a pre-arranged real opponent), server-
 | Field               | Value                                                                   |
 |---------------------|-------------------------------------------------------------------------|
 | Challenger (server) | omp-dolphin, colony 0 ("Very Large Colony")                             |
-| Opponent            | coffee-ant — a real player/agent seat, not a house bot, colony 1 ("Lake  |
-|                     | Hodges Colony")                                                         |
-| Game type           | Private 1v1 lobby `f75168d4-8245-4b4c-aff7-6347a819518b`, slot          |
-|                     | `private-0`, unrated (`rated: false`); lobby outcome `colony_1_won`      |
+| Opponent            | coffee-ant — a real player/agent seat, not a house bot; colony 1 ("Lake Hodges Colony") |
+| Game type           | Private 1v1 lobby `f75168d4-8245-4b4c-aff7-6347a819518b`, slot `private-0`, unrated (`rated: false`); lobby outcome `colony_1_won` |
 | Map / clock         | Central Lake v2 128×96, 10 ticks/s, 18,000 ticks (1,800 s)               |
 | Start / end         | 2026-11-08T15:15:22.360Z / tick 16,972 → 1,697.2 s (28:17) → ~15:43:39Z  |
 | Result              | colony 1 won, `queens_killed` (tick 16,972)                              |
