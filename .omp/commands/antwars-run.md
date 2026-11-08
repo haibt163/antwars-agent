@@ -83,6 +83,7 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 3. Right after joining the match, make ONE `pick_nest` attempt at a tile chosen using the nest-site heuristic in `prompt.md`. Never assume the pick window has closed; only an actual refusal from the server means it has closed. After a refusal, do not retry; continue with the auto-placed queen. Then, with no reading or analysis in between, set brood to workers using the live-supported setting and place the first FORAGE mark on the nearest visible, reachable food.
 4. After the first brood and FORAGE orders are accepted, read the full match briefing and rules once. If the tool output is truncated and returns an artifact handle, fetch it. If the match server exposes its own rules, read them once.
 5. Observe about every 15-20 seconds during the opening and fights, and about every 30 seconds in calm periods. Never let more than 60 seconds pass between accepted game-tool calls; refused calls do not reset the idle clock.
+   - Decode `observe` cells with `kind = k % 6`: colony is `kind % 2` (even = colony 0, odd = colony 1), never `antId % 2`; `kind >= 4` is a soldier.
 6. Use `order`, `count_mark`, `found_queen` and `set_brood` only according to their live schemas and limits. After consequential actions, check whether each command was accepted and adapt to the board.
 7. Continue until the server confirms `matchOver: true` (or its documented equivalent), the winner or draw, and the result.
 
