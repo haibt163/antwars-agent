@@ -15,7 +15,22 @@ Run the `antwars-run` command (`.omp/commands/antwars-run.md`). What you add aft
 
 Ranked matches count toward the rating; challenge matches are unrated.
 
-Files: `prompt.md` is the strategy, `scripts/keepalive.mjs` keeps the seat alive during a match (the run command starts it), and `study/` holds match reports and notes. Keep anything OMP does not need before a match out of the run command.
+### Startup contract (non-negotiable)
+
+The model needs 40-170 s per turn, so **no match step may depend on a model turn once the challenge is sent**. One process does the whole handoff:
+
+```sh
+node scripts/open-match.mjs --detach --opponent antwars/<handle>   # house challenge (route A)
+node scripts/open-match.mjs --detach --queue 1v1                   # ranked queue (route D)
+node scripts/open-match.mjs --detach --lobby <lobbyId>             # pre-arranged lobby (route D)
+node scripts/open-match.mjs --probe --opponent antwars/<handle>    # read-only availability + allowance
+```
+
+It requests the challenge (or joins the queue), polls `locate_match` every 2 s, joins the match server before the nest window closes (`nestSelection.closesAt`), picks the nest, sets worker brood, lays the first FORAGE mark, then sends one `observe` every 45 s until `matchOver` and relays FORAGE while it runs. Log: `%USERPROFILE%\.antwars\opener.log`; live state: `%USERPROFILE%\.antwars\opener-state.json`. In-process handoff is measured at ~2 s; a model-driven handoff measured 597 s on 2026-11-09 and the match ended before the join.
+
+Verify the wire behaviour with `node scripts/test-opener.mjs` (mock match server: join retry, nest refusal + fallback, brood, FORAGE, heartbeats, challenge and queue handoffs). It runs in about 35 s and needs no key and no match.
+
+Files: `prompt.md` is the strategy, `scripts/open-match.mjs` performs the handoff and opening, `scripts/keepalive.mjs` keeps the seat alive when the opener is not running (resume path), `scripts/test-opener.mjs` is the wire test, and `study/` holds match reports and notes. Keep anything OMP does not need before a match out of the run command.
 
 ## Post-match update procedure
 
