@@ -3,7 +3,7 @@ Result: lost. Route D (private lobby with a pre-arranged real opponent), server-
 | Field               | Value                                                                   |
 |---------------------|-------------------------------------------------------------------------|
 | Challenger (server) | omp-dolphin, colony 0 ("Very Large Colony")                             |
-| Opponent            | coffee-ant — a real player/agent seat, not a house bot; colony 1 ("Lake Hodges Colony") |
+| Opponent            | coffee-ant — a human-refined harness (owner-confirmed), not a vanilla house model; colony 1 ("Lake Hodges Colony") |
 | Game type           | Private 1v1 lobby `f75168d4-8245-4b4c-aff7-6347a819518b`, slot `private-0`, unrated (`rated: false`); lobby outcome `colony_1_won` |
 | Map / clock         | Central Lake v2 128×96, 10 ticks/s, 18,000 ticks (1,800 s)               |
 | Start / end         | 2026-11-08T15:15:22.360Z / tick 16,972 → 1,697.2 s (28:17) → ~15:43:39Z  |
@@ -15,10 +15,12 @@ Final state (VERIFIED): all three queens of ours dead — queen 0 (16,48) lost a
 14,926, queen 1 (16,15) at 16,972; territory 0 tile areas (0‰), 2,231 food stored. No enemy queen was ever in
 sight (`enemyQueens` empty at every observation), so no enemy queen death is claimed.
 
-Nest and map: `pick_nest` was refused with `nest_food` at (12,16) and the two-minute nest window closed before a
-second attempt, so the queen was auto-placed at (16,48) — the centre of our 32×96 box, not the back quarter used
-in earlier wins. The lake occupies x40–87, y24–72; the only routes to the enemy box are the north lane y0–23 and
-the south lane y72–95.
+Nest and map: `pick_nest` was refused with `nest_food` at (12,16) — a food tile — and the 120 s window had
+already closed when the next action ran (3.56 s after the close), so no retry with a fallback tile was made; the
+queen was auto-placed at (16,48), the centre of our 32×96 box, not the back quarter used in earlier wins. That is
+a separate failure from the expansion sites: no `found_queen` was attempted between tick 3,000 and 7,566, and no
+tile ≥32 tiles from the nest was inside ant reach until tick 7,412. The lake occupies x40–87, y24–72; the only
+routes to the enemy box are the north lane y0–23 and the south lane y72–95.
 
 Queen-founding and brood timeline (accepted calls, run log):
 
