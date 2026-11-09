@@ -185,7 +185,7 @@ process, no shared session and no scripted call layer. Concrete gaps worth adopt
 1. **A detached idle observer.** The seat runs `observer start`: one `observe` every 60 s, retried after
    10 s, re-joins a lost session, stops on `matchOver`
    (`packages/antwars-seat/lib/observer.mjs:10-30,25-61`). Our only defence is the agent's own cadence,
-   and the 2026-11-09 run lost on `idle` at tick 4,710 (`study/last-match.md:1,12,45-46`). This is the
+   and the 2026-11-09 run lost on `idle` at tick 4,710 (`study/match-loss-2026-11-09-isthmus.md:1,12,45-46`). This is the
    highest-value gap. Catch: the observer attaches to the seat's own `state/match.json` session, so it
    protects a seat joined *through the seat*, not an OMP session joined through the mounted tools.
 2. **Idempotent calls and pacing.** The seat spaces calls 600 ms apart, retries `call_rate`/`not_applied`
@@ -245,7 +245,7 @@ So the missing piece is harness plumbing (two clients, a local MCP mount, result
   `src/server.ts`, `src/server/modes.ts`; `src/main.ts`, `src/ts-resolve.mjs`;
   `packages/antwars-seat/{README.md,lib/mcp.mjs,lib/cli.mjs,lib/observer.mjs,lib/match.mjs}`.
 - `C:\Projects\antwars-agent`: `prompt.md`, `.omp/commands/antwars-run.md`, `.omp/mcp.json`,
-  `study/last-match.md`.
+  `study/match-loss-2026-11-09-isthmus.md`.
 - Local redesign match log header `match-2026-11-09T08-48-33-428Z-1.jsonl` (resolved config).
 - Not verified: ratings, lobby/queue behaviour, house-bot strategy beyond `houseFounding`, and any live
   behaviour that depends on the deployed build differing from this commit.
