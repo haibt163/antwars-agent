@@ -1,36 +1,27 @@
-# Match report — 2026-11-09 win, Three Crossings v2
+# Match report — 2026-11-09 loss, map not observed
 
 | Field | Value |
 |---|---|
-| Result | Colony 1 (`omp-dolphin`) won; `sustained_territory`, `decidedBy: territory`, tick 16,896 |
-| Route | D — ranked 1v1 queue, rated |
-| Lobby | `f14ece51-223b-4c40-9817-b365d9f7415d`; queue matched 2026-11-09T13:24:49.514Z |
-| Opponent | Lobby seat `kain`, colony 0. The match log records only seat 0 (`omp-dolphin`) and `rerun.houseActive: [[0, 16896]]`: colony 0 was house-controlled for the whole match. Why `kain` never connected is UNVERIFIED. |
-| Map | Three Crossings v2, 128 × 96; 18,000-tick limit |
-| Clock | Start 2026-11-09T13:26:59.840Z; end 2026-11-09T13:55:09.465Z; 16,896 ticks (28:09.6) |
-| Rating | Agent 0: 1500 → 1662.212. The result lists no other rating change. |
+| Result | Colony 0 won; `queens_killed`, `decidedBy: queens_killed`, tick 5,015 (about 8:21 of a 1,800 s match) |
+| Route | A — house challenge, unrated public lobby |
+| Challenger | `omp-dolphin`, colony 1 (VERIFIED: lobby `colonies[1][0].displayName`) |
+| Opponent | `antwars/gpt-6-astra` (house seat, colony 0; lobby `challenge.heldColony: 0`) |
+| Lobby | `effb0279-245c-400e-a981-de6bd040de3a`; request `3f933d3a-8f58-41ce-b304-c1bc7dc1dbd0` |
+| Map | Not observed. The seat never reached a match view, so no map name is claimed (UNVERIFIED beyond the lobby record) |
+| Clock | Lobby created 2026-11-09T14:50:19.735Z; `startsAt` 14:51:30.306Z; match over at tick 5,015 |
+| Seat | Never joined. `join` returned `match_over` at 15:00:16Z, eight minutes after the start |
 
-## Final state (server-confirmed)
+## Server-confirmed state
 
-| Field | Value |
-|---|---|
-| Territory | 535.25 tile areas; 174‰ own share vs 11‰ enemy share |
-| Queens | Queen 0 at (111,48), queen 1 at (78,49); both 40/40 HP |
-| Stored food | 8,051 |
-| Count marks | None |
-| Deaths in match log | Colony 0: 440; colony 1: 326 |
+- `join` on the match server replied `{"error":{"code":"match_over",…},"matchOver":true,"winner":"Very Large Colony","result":{"winner":0,"reason":"queens_killed","decidedBy":"queens_killed","tick":5015}}`.
+- `read_lobby` records `outcome: "colony_0_won"`; `challenge_status` records `state: "finished"`.
+- No view was ever taken: `observe` answered `not_joined` both before and after the end, so nothing is known about either colony's ants, queens, food or territory.
+- The challenge was charged: `allowanceLeft` 13 before the request, 12 after.
 
-## Queen-founding and brood timeline
+## What the match contained
 
-| Tick | Event |
-|---|---|
-| 3,979 | Seat joined; the 120 s nest window had closed, so queen 0 was auto-placed at (111,48) with mixed brood |
-| 13,906 | Queen 0 brood set to soldiers |
-| 13,910 | Queen 1 founded at (78,49); accepted, 4,556 food stored, next founding allowed at tick 15,710 |
-| 16,889 | Queen 1 brood set to soldiers |
+The house seat played colony 0 alone. Colony 1 was not controlled by the model or the opener for any tick; the only colony-1 activity was whatever the server runs for an unjoined seat. Queen elimination at tick 5,015 is consistent with colony 1 having no defended queens (INFERRED: no colony-1 state was observed).
 
-## Decisive server-confirmed events
+## Process note
 
-- Three qualifying territory runs were logged. The first began at tick 13,228 and reset at 13,806; the second began at 13,807 and reset at 13,809.
-- The final run began at tick 13,897 and completed at tick 16,896, 300 s later, ending the match at `sustained_territory` before the 18,000-tick limit.
-- No queen, ours or the enemy's, was lost. The match log contains one `queenFounded` event (ours at 13,910) and no `queen_lost` event.
+The handoff never completed: `request_challenge` was accepted at 14:50:19Z and the first `join` attempt was made at 15:00:16Z, 597 s later, in four model turns (75.0, 84.4, 172.0, 147.5 and 114.8 s of model latency). The timing evidence, root cause and the fix (`scripts/open-match.mjs`, plus the rewritten run procedure) are in `study/handoff-latency-2026-11-09.md`. This report deliberately records only the match; the procedure defect belongs to that note and the accompanying process PR.
