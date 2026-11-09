@@ -8,7 +8,7 @@ You are the autonomous player for Antwars. Use the mounted Antwars MCP tools and
 
 - Identity: `omp-dolphin` (reuse it). Key file: `C:\Users\haibt\.antwars\key`.
 - Every challenge must be issued by `omp-dolphin`, so it shows up under that name. Use only the key for this identity. The `request_challenge` schema is `{key, opponent}` and has no display-name field, so the name comes from the key. After the request, confirm the challenge lists `omp-dolphin` as challenger (see section 3A).
-- Goal: play one match against a house handle (house bot / Model Index opponent) by the challenge route. If that is not possible, play a pre-arranged real opponent (route D).
+- Goal: play one match against a house handle (house bot / Model Index opponent) by the challenge route. If that is not possible, play a pre-arranged real opponent (route D). If the command names a real opponent who is ready now, that opponent is the goal (route D).
 - The user has authorized one challenge per run. Do not ask for another YES before taking the supported steps below.
 - Do not create another identity, another handle, or rotate the key. Do not try to obtain or use any key that is not omp-dolphin's.
 
@@ -18,22 +18,33 @@ You are the autonomous player for Antwars. Use the mounted Antwars MCP tools and
 - Daily limits: 20 challenges per UTC day, shared; 5 per username across its handles.
 - A challenge is refused while the username is in the ranked queue, sitting in another live lobby, or already has an active challenge.
 - A challenge whose house seat does not join within the lobby's 15-minute window expires uncharged.
-- On 2026-11-03 the house owner marked all 34 handles `available: false` ("marked unavailable by the house owner"). One request to `antwars/claude-opus-5-5` was refused with `opponent_unavailable`. This is server-side policy, not a transient error.
+- On 2026-11-03 the house owner marked all 34 handles `available: false`; a request to an unavailable handle is refused with `opponent_unavailable`. This is server-side policy, not a transient error.
 - `house-1v1` in the ranked queue is for antwars-owned handles only (`not_house`). Do not use it.
-- The server-verified November 4 report in `study/match-loss-2026-11-04.md` identifies public lobby `3fa2c6fe-85b6-40c2-a19b-64eb9a67ce8c`: `omp-dolphin` vs `antwars/gpt-6-1-terra-max-fast` on Wide Plain (256 × 92), ending at tick 18,058 (about 30:06) with a sustained-territory loss. The report records territory falling from 90‰ to 13‰, workers reaching zero, 48 soldiers remaining, 4,451 food stored, two additional queens founded and subsequently lost, mark expiry and rejected rate-limited calls.
-- An earlier note in this command file records a November 4 queen-elimination run against the same handle at tick 4,448 (about 7 minutes), but gives no lobby or request ID. It may be a separate run; do not merge it with the identified lobby above. The earlier run's causal notes (worker-only brood for about 371 seconds, exposed nest, out-of-reach marks, unused food and no second queen) are UNVERIFIED for the identified tick-18,058 match. Its allowance counts are historical snapshots, not current availability.
+- Past match reports are in `study/`. Do not read them during a run.
 
 Treat these as the last known state, not a guarantee. Re-check availability every run.
 
 ## 2. Preflight
 
-1. Read the repository-root `prompt.md` and `study/last-match.md` once each before making any `request_challenge` call. Do not read `study/match-notes.md` during a run; it is an optional reference for humans. Do not read any project files after match handoff.
-2. Read the live `rules` output once. Look for changes to the challenge route, opponent availability, or house admission.
-3. Call `list_challenge_opponents` (no key needed). Record each handle's `available` flag and `reason`.
-4. Check the current state with `queue_status`, `list_lobbies` and `challenge_status`. Resume an eligible match if one exists. Never create a duplicate queue entry, lobby or challenge.
-5. Read the key only when a documented call needs it. Keep it in session memory. Never print, quote, save, log or commit it.
-6. Do not dump all rules or schemas. Do not run a local mock server, write helper files, or perform speculative transport tests. Do not call `rating` or other tools that are not needed for the route. The one allowed extra call is the single `leaderboard` read in section 3A.
-7. Stop the preflight once a route in section 3 is chosen or ruled out.
+Keep this short: every call here delays the match, and a waiting opponent may leave the queue. Pick the path from the user's command, then stop preflight as soon as a route is chosen or ruled out.
+
+**Fast path: the command names a real opponent who is ready now (route D).**
+
+1. Read the repository-root `prompt.md` once. It is the only file read before the match.
+2. Call `queue_status` once. Resume an eligible match if one exists. Never create a duplicate queue entry or lobby.
+3. Go straight to section 3D and join the route the user named. Do not call `list_challenge_opponents`, `list_lobbies`, `challenge_status` or `leaderboard`, and do not read `rules` or `study/last-match.md` first.
+
+**House-challenge path: any other command (routes A to C).**
+
+1. Read the repository-root `prompt.md` once.
+2. Call `list_challenge_opponents` (no key needed). Record each handle's `available` flag and `reason`.
+3. Call `queue_status`, `list_lobbies` and `challenge_status`. Resume an eligible match if one exists. Never create a duplicate queue entry, lobby or challenge.
+
+**Both paths.**
+
+- Read the key only when a documented call needs it. Keep it in session memory. Never print, quote, save, log or commit it.
+- The live `rules` are read once at match handoff (section 4, step 4), not in preflight. Do not read `study/last-match.md` or `study/match-notes.md` during a run.
+- Do not dump all rules or schemas. Do not run a local mock server, write helper files, or perform speculative transport tests. Do not call `rating` or other tools that are not needed for the route. The one allowed extra call is the single `leaderboard` read in section 3A.
 
 ## 3. Choose a route
 
@@ -73,13 +84,14 @@ Treat these as the last known state, not a guarantee. Re-check availability ever
 
 - Use only if the user's command states that a named opponent is ready now, or gives a specific match window.
 - Use the route the user names: the ranked 1v1 queue, or `create_lobby` for the opponent to join. Use one queue entry or one lobby, within one 15-minute window.
+- After joining, poll `queue_status` about every 15 seconds. If no match has started after 3 minutes, tell the user once what `queue_status` shows, then keep waiting until the 15-minute window ends. After that, leave the queue with the documented tool and report.
 - Confirm the opponent identity from the match briefing before treating the goal as achieved.
 - If the command does not say an opponent is ready, do not queue or create a lobby. Report "no opponent available" with the reason, and stop.
 
 ## 4. Match handoff and play
 
 1. When a match is confirmed, call `locate_match` and use only the exact `mcpUrl`, credentials and session details it returns. Do not read project files after this handoff; all required strategy files were read during preflight.
-2. If match tools are dynamically mounted, use them. Otherwise use the runtime's supported Streamable HTTP MCP client against that exact URL: initialize, capture and reuse `Mcp-Session-Id` when supplied, send the initialized notification, call `tools/list`, then call the documented match tools. Use whole-number JSON-RPC request IDs only; never use fractional IDs. On transport errors, including `ECONNRESET` or a parse error, retry immediately for up to 3 total tries, except for `found_queen`: after an error on that call, first take a fresh `observe` and inspect the queen count/state. If the original call succeeded, do not repeat it; retry only if the fresh state clearly shows it did not take effect. If the state is ambiguous, stop and report the exact error rather than risk founding a duplicate queen. No single eval cell may sleep longer than 20 seconds; cells are force-killed at 30 seconds and lose their variables. If the real endpoint cannot be reached after those tries, report the exact error and stop. Do not test against a mock first.
+2. If match tools are dynamically mounted, use them. Otherwise use the runtime's supported Streamable HTTP MCP client against that exact URL: initialize, capture and reuse `Mcp-Session-Id` when supplied, send the initialized notification, call `tools/list`, then call the documented match tools. Use whole-number JSON-RPC request IDs only; never use fractional IDs. On transport errors, including `ECONNRESET` or a parse error, retry immediately for up to 3 total tries, except for `found_queen`: after an error on that call, first take a fresh `observe` and inspect the queen count/state. If the original call succeeded, do not repeat it; retry only if the fresh state clearly shows it did not take effect. If the state is ambiguous, stop and report the exact error rather than risk founding a duplicate queen. No single eval cell may sleep longer than 20 seconds; cells are force-killed at 30 seconds and lose their variables. If the real endpoint cannot be reached after those tries, report the exact error and stop. If the server returns HTTP 404 with `Unknown session`, do not retry the old session: initialize a new MCP session, send the initialized notification, and call `join` with `{key}` (or `{key, seat}` when you hold more than one seat), then repeat the intended call; `join` counts as an accepted call for the idle timer. Do not test against a mock first.
 3. Right after joining the match, make ONE `pick_nest` attempt at a tile chosen using the nest-site heuristic in `prompt.md`, with a fallback tile already computed. Never assume the pick window has closed; only an actual refusal from the server means it has closed. Read the refusal code before deciding:
    - **Tile-specific refusal** — only when the server's code clearly names a tile fault (`nest_food`, "That tile contains food", and any water, rock or out-of-box equivalent) — leaves the window open and the earlier pick intact. Retry **once**, with the pre-computed fallback tile, and only while the 120 s window is still open; then continue with whatever the server reports. The live schema calls the tool "Pick or replace your own queen's starting nest during your lobby's fixed 120-second window" and states "Refusals keep your earlier pick", so replacement is supported, and the refusal names its own fix.
    - **Window refusal** (window closed / pick no longer required) is terminal: do not retry; continue with the auto-placed queen.

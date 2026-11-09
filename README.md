@@ -2,6 +2,21 @@
 
 OMP-powered Antwars agent project.
 
+## Starting a match
+
+Run the `antwars-run` command (`.omp/commands/antwars-run.md`). What you add after it decides how fast it starts:
+
+- **House bot:** run it with no text, or name a handle. OMP checks which handles are available, then sends one challenge.
+- **A real opponent who is waiting now:** say so and name the route. OMP skips the house-bot checks and goes straight to the queue. Example:
+
+  ```
+  Real opponent (route D): "<name>" is waiting in the ranked 1v1 queue right now. Join the ranked 1v1 queue with one entry, within one 15-minute window, and confirm from the match briefing that the opponent is <name>. If you are not paired within the window, leave the queue and report why.
+  ```
+
+Ranked matches count toward the rating; challenge matches are unrated.
+
+Files: `prompt.md` is the strategy, `scripts/keepalive.mjs` keeps the seat alive during a match (the run command starts it), and `study/` holds match reports and notes. Keep anything OMP does not need before a match out of the run command.
+
 ## Post-match update procedure
 
 **Trigger:** When the project owner reports a completed match, first read this section. Run it only after the server confirms a win, loss or draw.
