@@ -1,4 +1,4 @@
-Result: lost. Route D (private lobby with a pre-arranged real opponent), server-confirmed `queens_killed` defeat.
+Result: lost. Route D (private lobby with a pre-arranged opponent, a human-refined harness), server-confirmed `queens_killed` defeat.
 
 | Field               | Value                                                                   |
 |---------------------|-------------------------------------------------------------------------|
@@ -18,7 +18,7 @@ sight (`enemyQueens` empty at every observation), so no enemy queen death is cla
 Nest and map: `pick_nest` was refused with `nest_food` at (12,16) — a food tile — and the 120 s window had
 already closed when the next action ran (3.56 s after the close), so no retry with a fallback tile was made; the
 queen was auto-placed at (16,48), the centre of our 32×96 box, not the back quarter used in earlier wins. That is
-a separate failure from the expansion sites: no `found_queen` was attempted between tick 3,000 and 7,566, and no
+a separate failure from the expansion-site preparation: no `found_queen` was attempted between tick 3,000 and 7,566, and no
 tile ≥32 tiles from the nest was inside ant reach until tick 7,412. The lake occupies x40–87, y24–72; the only
 routes to the enemy box are the north lane y0–23 and the south lane y72–95.
 
