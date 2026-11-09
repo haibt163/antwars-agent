@@ -24,7 +24,7 @@
  * Stop: write the stop file (default <log>.stop) or send SIGINT. Exit 0 on
  * match end, stop, SIGINT/SIGTERM; 1 on a refused or unreadable seat.
  */
-import { appendFileSync, existsSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync, statSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -255,10 +255,17 @@ async function main() {
   }
   await heartbeat();
 
+  // A stop file left by an earlier match must not end this one: only a file
+  // written after this process started counts as a stop request.
+  const startedMs = Date.now();
   const stopWatch = setInterval(() => {
     if (existsSync(stopPath)) {
-      clearInterval(stopWatch);
-      stop("stop_file", 0);
+      let written = 0;
+      try { written = statSync(stopPath).mtimeMs; } catch { written = 0; }
+      if (written >= startedMs) {
+        clearInterval(stopWatch);
+        stop("stop_file", 0);
+      }
     }
   }, 1000);
   stopWatch.unref();

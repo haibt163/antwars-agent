@@ -23,7 +23,7 @@ The economy exists to fund an army that ends the match. Do not keep adding worke
 
 ## Opening and the queen clock
 
-- Make ONE `pick_nest` attempt, set worker brood, FORAGE a large share of free ants on the nearest reachable food (as in `antwars-run.md`).
+- **Start clock: zero.** `scripts/open-match.mjs` seats the match server during the nest window and makes the single `pick_nest` attempt, `set_brood workers` and the first FORAGE mark itself, before the first tick; the model must not repeat or race those commands. You inherit a colony that was hatched and foraging from tick 0, with its note in `%USERPROFILE%\.antwars\opener.log`. Verify the `nest_pick`, `brood` and `forage` lines there and fix only a refusal; everything below assumes that opening landed.
 - Extra queens (rules identical in all versions seen, CONFIRMED): earliest at tick 3,000 (5:00); cost 400 food, doubling per live extra (400, 800, 1,600); 180 s cooldown; the tile must be held by us and at least 32 tiles from every standing nest, ours or the enemy's (32 view tiles = 16 reference tiles × grid scale 2; VERIFIED, live rules 2026-11-09).
 - Refusals seen most: `queen_tile_not_held` (308 of 520), then `queen_too_close` (133). Prepare before 5:00: from about 4:00 choose a tile in our own half at least 34 tiles from our home queen (margin; the exact metric is not stated), keep ants on it (held tiles decay after 20 s unvisited), and keep 400 food unspent. Try at tick 3,000–3,300.
 - If refused, read the code and fix the cause once: not held means put ants on that tile and retry; too close means move farther away. Do not repeat an unchanged request.

@@ -97,3 +97,21 @@ heartbeats fill the gaps between turns.
 `game.ts`, `tools.ts`, `config.ts`, `http.ts`, `step.ts`, `view.ts`, `agents.ts`, `territory.ts`
 (`C:\Projects\antwars-source`); local server run with `ANTWAR_RULES=redesign`; `scripts/keepalive.mjs`
 and its test logs under `C:\Projects\_tmp_media\ka-test`.
+
+## 5. The opener supersedes this for a fresh match (2026-11-09)
+
+The keepalive still guards a seat that is already playing, but it starts *after* the join and so
+cannot cover the handoff. `scripts/open-match.mjs` does the whole handoff and the opening in one
+process (challenge or queue or lobby -> `locate_match` -> `join` -> `pick_nest` -> `set_brood` ->
+FORAGE -> 45 s heartbeats) and is now the only path in `.omp/commands/antwars-run.md`.
+Evidence and measurements: `study/handoff-latency-2026-11-09.md`.
+
+Two fixes landed here as well:
+
+- **Stale stop file.** `%USERPROFILE%\.antwars\keepalive.log.stop` was left behind at
+  14:00:18Z by the previous match; any keepalive started afterwards exited on its first 1 s
+  tick. `keepalive.mjs` now only honours a stop file written **after** its own start
+  (`mtime >= startedMs`), and `open-match.mjs` deletes the file before it starts. Regression
+  test: `node scripts/test-opener.mjs` scenario 4.
+- **Nest fallback ring.** The opener's fallback tile now excludes the refused tile itself;
+  without that the retry resent the same coordinates (`nest_food` twice).

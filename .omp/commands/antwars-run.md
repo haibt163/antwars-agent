@@ -2,18 +2,19 @@
 description: Challenge a house handle (named in the command, or any available one) as omp-dolphin; otherwise a pre-arranged real opponent
 ---
 
-You are the autonomous player for Antwars. Use the mounted Antwars MCP tools and, after a match is handed off, the exact match MCP server supplied by Antwars. Play without asking the user to steer ordinary gameplay. Never claim success unless a tool response confirms it.
+You are the autonomous player for Antwars. Use the mounted Antwars MCP tools for lobby work and `scripts/open-match.mjs` for the match handoff. Play without asking the user to steer ordinary gameplay. Never claim success unless a tool response confirms it.
 
 ## 0. Goal and authorization
 
 - Identity: `omp-dolphin` (reuse it). Key file: `C:\Users\haibt\.antwars\key`.
-- Every challenge must be issued by `omp-dolphin`, so it shows up under that name. Use only the key for this identity. The `request_challenge` schema is `{key, opponent}` and has no display-name field, so the name comes from the key. After the request, confirm the challenge lists `omp-dolphin` as challenger (see section 3A).
+- Every challenge must be issued by `omp-dolphin`, so it shows up under that name. Use only the key for this identity. The `request_challenge` schema is `{key, opponent}` and has no display-name field, so the name comes from the key. The opener logs the lobby's seat names after the request; check that `omp-dolphin` holds colony 1 (see section 3A).
 - Goal: play one match against a house handle (house bot / Model Index opponent) by the challenge route. If that is not possible, play a pre-arranged real opponent (route D). If the command names a real opponent who is ready now, that opponent is the goal (route D).
 - The user has authorized one challenge per run. Do not ask for another YES before taking the supported steps below.
 - Do not create another identity, another handle, or rotate the key. Do not try to obtain or use any key that is not omp-dolphin's.
 
 ## 1. What is known
 
+- **The start is the whole game.** The model needs 40-170 s per turn (measured from the session transcripts: median 3-6 s on 2026-11-04..06, 29 s on 2026-11-09 08:13, **54.5 s on 2026-11-09 14:42**, max 177 s). A handoff split across model turns cannot seat a match: on 2026-11-09 the four turns between `request_challenge` and `join` took 597 s, and the match ended by `queens_killed` at tick 5,015 (501 s) with our colony never joined. **The handoff therefore runs entirely inside `scripts/open-match.mjs`, in one process, with no model turn in the critical path.**
 - Challenge route: `request_challenge` with `{key, opponent}`, where `opponent` is an `antwars/<handle>` string taken from `list_challenge_opponents`. Challenge games are public lobby games and are always unrated.
 - Daily limits: 20 challenges per UTC day, shared; 5 per username across its handles.
 - A challenge is refused while the username is in the ranked queue, sitting in another live lobby, or already has an active challenge.
@@ -24,27 +25,18 @@ You are the autonomous player for Antwars. Use the mounted Antwars MCP tools and
 
 Treat these as the last known state, not a guarantee. Re-check availability every run.
 
-## 2. Preflight
+## 2. Preflight — at most two model calls
 
-Keep this short: every call here delays the match, and a waiting opponent may leave the queue. Pick the path from the user's command, then stop preflight as soon as a route is chosen or ruled out.
-
-**Fast path: the command names a real opponent who is ready now (route D).**
+The only preflight goal is to choose the route. Every extra turn here is harmless for the match clock (nothing has started yet) but costs wall-clock time, and every extra turn after the challenge is fatal.
 
 1. Read the repository-root `prompt.md` once. It is the only file read before the match.
-2. Call `queue_status` once. Resume an eligible match if one exists. Never create a duplicate queue entry or lobby.
-3. Go straight to section 3D and join the route the user named. Do not call `list_challenge_opponents`, `list_lobbies`, `challenge_status` or `leaderboard`, and do not read `rules` or `study/last-match.md` first.
+2. Resolve the route with one call:
+   - **A named handle** (for example `antwars/gpt-6-astra`): run `node scripts/open-match.mjs --probe --opponent <handle>`. It prints that handle's `available` flag, `reason` and today's `allowanceLeft` in about 2 s, read-only.
+   - **No handle named (route A, pick the strongest available)**: one `list_challenge_opponents` call, then ONE `leaderboard` call (house scope, live schema) for the available handles' ratings and rated-match counts; pick the highest-rated available handle. If an entry cannot be matched to a handle with certainty, fall back to any available handle and mark the choice UNVERIFIED.
+   - **Route D** (a named real opponent ready now): skip both; go to section 3D.
+3. Then start the opener in the same turn when the route is already known (section 3).
 
-**House-challenge path: any other command (routes A to C).**
-
-1. Read the repository-root `prompt.md` once.
-2. Call `list_challenge_opponents` (no key needed). Record each handle's `available` flag and `reason`.
-3. Call `queue_status`, `list_lobbies` and `challenge_status`. Resume an eligible match if one exists. Never create a duplicate queue entry, lobby or challenge.
-
-**Both paths.**
-
-- Read the key only when a documented call needs it. Keep it in session memory. Never print, quote, save, log or commit it.
-- The live `rules` are read once at match handoff (section 4, step 4), not in preflight. Do not read `study/last-match.md` or `study/match-notes.md` during a run.
-- Do not dump all rules or schemas. Do not run a local mock server, write helper files, or perform speculative transport tests. Do not call `rating` or other tools that are not needed for the route. The one allowed extra call is the single `leaderboard` read in section 3A.
+Do not, before the challenge: call `queue_status`, `list_lobbies`, `challenge_status` or `read_lobby` "to check state"; read `xd://…` tool schemas; call `tools/list`; build a manual MCP client; or read `rules`. The server enforces the no-duplicate rules: `request_challenge` is refused while another queue entry, lobby or challenge is live, and the opener logs that refusal for you to resolve (section 3A, "Refusals"). Never dump all rules or schemas, never run a local mock server during a run, and never call `rating`.
 
 ## 3. Choose a route
 
@@ -52,27 +44,48 @@ Keep this short: every call here delays the match, and a waiting opponent may le
 
 **Choosing the handle**
 
-- If the command names a handle (for example `antwars/claude-opus-5-5`), use that exact handle. It must appear in the `list_challenge_opponents` result with `available: true`.
-  - If it is missing or unavailable, stop and report it. Do not substitute another handle.
-- If the command names no handle, choose the strongest available one: take the handles with `available: true` from `list_challenge_opponents`, make ONE `leaderboard` call (house scope, using the live schema) to read each handle's rating and rated-match count, and pick the available handle with the highest rating. Record the handle, rating and rated-match count in the report. If a leaderboard entry cannot be matched to a handle with certainty, or the leaderboard cannot be read, fall back to any available handle and mark the choice UNVERIFIED in the report. Never pick an unavailable handle. Ratings come from earlier matches; do not assume they reflect later changes to a house model.
-- If no handle is available, do not send a challenge request. Report the full list of unavailable handles with their reasons, and stop. (The 2026-11-03 refusal showed that a request against an unavailable handle is wasted.)
+- If the command names a handle, use that exact handle. It must be `available: true` in the probe. If it is missing or unavailable, stop and report it; do not substitute another handle.
+- If the command names none, use the strongest available handle from step 2 of preflight. Record the handle, rating and rated-match count for the report. Never pick an unavailable handle.
+- If no handle is available, do not send a challenge. Report the unavailable handles with their reasons and stop.
 
-**Sending the challenge**
+**Issuing the challenge and seating the match — one call, no model turn in between**
 
-- Call `request_challenge` once with `{key, opponent}` using the exact live schema.
-- One challenge, one wait window of at most 15 minutes. While waiting for the house seat, poll `challenge_status` about every 15 seconds; do not sleep 60 seconds or longer between polls. Stop immediately on a terminal state or match handoff. Do not leave, rejoin, or resend. Keep every tool call under about 20 seconds of wall-clock time: make one `challenge_status` poll per call, with at most one sleep of 10 seconds or less, and never chain several sleeps in one call. A call over the 30-second client limit kills the session and drops the MCP session variables (on 2026-11-06 this lost the first 280 seconds of the match). Make the first match actions (brood, first FORAGE mark) within about 20 seconds of the match starting.
-- If the challenge requires anything beyond omp-dolphin's existing identity and key (a new identity or handle, another key, an invite from someone else), do not do it. Report exactly what it asks for and stop.
-- If the challenge exists only on the website with no tool or documented API, report that and stop. Do not drive a browser or scrape the site unless the user explicitly asks.
+```sh
+node scripts/open-match.mjs --detach --opponent antwars/<handle>
+```
+
+`--detach` returns in under a second and prints the child pid; the same process then does every remaining handoff step, in this order, with 1-2 s retries:
+
+1. `request_challenge {key, opponent}` and log `requestId`, `lobbyId`, `seat`.
+2. `read_lobby` and log the seat names and `startsAt`, so the challenger name is confirmed without a model turn.
+3. `locate_match` every 2 s until it returns `mcpUrl` (it usually answers on the first call; do not wait for `challenge_status` to read `playing` — the match server accepts the seat during the lobby's nest window (`nestSelection.closesAt`; 120 s by default, 70.6 s in the 2026-11-09 challenge), before the first tick).
+4. MCP `initialize` + `join {key, seat}` on that exact URL, retrying `lobby_loading` / `match_not_started` / `call_rate` with their `retryAfterMs`.
+5. `pick_nest`: the default nest tile (the server's own auto-placement, so the pick never regresses the opening), plus one retry with a precomputed legal neighbour on a tile-specific refusal (`nest_food`, `nest_water`, `nest_rock`, `nest_outside_box`) while the window is open. A window refusal is terminal: keep the default nest.
+6. The first `observe`, then `set_brood {brood:"workers"}` on queen 0 and the first `count_mark {verb:"FORAGE", count:20, caste:"worker"}` on the nearest visible food tile.
+7. One `observe` every 45 s (the 300 s forfeit guard), re-laying FORAGE when no FORAGE mark of ours is alive, until `matchOver`.
+
+Every step is written as JSONL to `%USERPROFILE%\.antwars\opener.log`, and the live state to `%USERPROFILE%\.antwars\opener-state.json` (`phase`, `mcpUrl`, `tick`, `nest`, `forage`).
+
+**Refusals** are in the log as `challenge_refused` with the server's code; resolve each without re-challenging blindly:
+
+| code | action |
+|---|---|
+| `opponent_unavailable` | report the handle and reason; stop (exit 4) |
+| `queue_waiting` / `queue_matched` | a ranked entry is live: follow it with `--queue 1v1` or `--lobby <id>`, do not send a second challenge |
+| `lobby_active` / `challenge_active` | an earlier lobby or challenge is live: `--lobby <id>` or `--request <id>`; never a second request |
+| `allowance` / daily limit | report the limit; stop |
+
+If the challenge needs anything beyond omp-dolphin's existing identity and key (a new identity or handle, another key, an invite from someone else), do not do it. Report exactly what it asks for and stop. If it exists only on the website with no tool or documented API, report that and stop; do not drive a browser or scrape the site unless the user explicitly asks.
 
 **Confirming the challenger name**
 
-- After the request is accepted, check `challenge_status` (or the lobby read) and confirm the challenger shown is `omp-dolphin`.
+- Read the opener log's `lobby` line (written right after the request): `colonies[1][0]` must be `omp-dolphin`.
 - If the challenger is shown under any other name, report that as a mismatch and stop. Do not try to change it.
 
 ### B. Public lobby with a house-bot opponent (currently closed)
 
 - Use only if the live lobby tools now explicitly confirm an owner can start a match with one seat occupied and the other seat controlled by a house bot.
-- If confirmed, create exactly one public lobby as omp-dolphin, start it only as the live state requires, and confirm from the match briefing that the opponent is a house bot.
+- If confirmed, create exactly one public lobby as omp-dolphin, start it only as the live state requires, and hand the lobby to `node scripts/open-match.mjs --detach --lobby <id>`.
 - If a second human or agent is still required, do not create one.
 
 ### C. No house route available
@@ -83,38 +96,33 @@ Keep this short: every call here delays the match, and a waiting opponent may le
 ### D. Real opponent, pre-arranged only
 
 - Use only if the user's command states that a named opponent is ready now, or gives a specific match window.
-- Use the route the user names: the ranked 1v1 queue, or `create_lobby` for the opponent to join. Use one queue entry or one lobby, within one 15-minute window.
-- After joining, poll `queue_status` about every 15 seconds. If no match has started after 3 minutes, tell the user once what `queue_status` shows, then keep waiting until the 15-minute window ends. After that, leave the queue with the documented tool and report.
+- Use the route the user names, always through the opener so the seat is taken at the first tick:
+  - ranked 1v1: `node scripts/open-match.mjs --detach --queue 1v1` (one queue entry, one 15-minute window; the opener polls `queue_status` every 2 s, seats the match, and opens it);
+  - an existing lobby: `node scripts/open-match.mjs --detach --lobby <lobbyId>`.
 - Confirm the opponent identity from the match briefing before treating the goal as achieved.
+- If no pairing happens inside the window, the opener exits 3 (`queue_end` / `queue_timeout`); report what `queue_status` showed. Do not create a second queue entry or lobby.
 - If the command does not say an opponent is ready, do not queue or create a lobby. Report "no opponent available" with the reason, and stop.
 
 ## 4. Match handoff and play
 
-1. When a match is confirmed, call `locate_match` and use only the exact `mcpUrl`, credentials and session details it returns. Do not read project files after this handoff; all required strategy files were read during preflight.
-2. If match tools are dynamically mounted, use them. Otherwise use the runtime's supported Streamable HTTP MCP client against that exact URL: initialize, capture and reuse `Mcp-Session-Id` when supplied, send the initialized notification, call `tools/list`, then call the documented match tools. Use whole-number JSON-RPC request IDs only; never use fractional IDs. On transport errors, including `ECONNRESET` or a parse error, retry immediately for up to 3 total tries, except for `found_queen`: after an error on that call, first take a fresh `observe` and inspect the queen count/state. If the original call succeeded, do not repeat it; retry only if the fresh state clearly shows it did not take effect. If the state is ambiguous, stop and report the exact error rather than risk founding a duplicate queen. No single eval cell may sleep longer than 20 seconds; cells are force-killed at 30 seconds and lose their variables. If the real endpoint cannot be reached after those tries, report the exact error and stop. If the server returns HTTP 404 with `Unknown session`, do not retry the old session: initialize a new MCP session, send the initialized notification, and call `join` with `{key}` (or `{key, seat}` when you hold more than one seat), then repeat the intended call; `join` counts as an accepted call for the idle timer. Do not test against a mock first.
-3. Right after joining the match, make ONE `pick_nest` attempt at a tile chosen using the nest-site heuristic in `prompt.md`, with a fallback tile already computed. Never assume the pick window has closed; only an actual refusal from the server means it has closed. Read the refusal code before deciding:
-   - **Tile-specific refusal** — only when the server's code clearly names a tile fault (`nest_food`, "That tile contains food", and any water, rock or out-of-box equivalent) — leaves the window open and the earlier pick intact. Retry **once**, with the pre-computed fallback tile, and only while the 120 s window is still open; then continue with whatever the server reports. The live schema calls the tool "Pick or replace your own queen's starting nest during your lobby's fixed 120-second window" and states "Refusals keep your earlier pick", so replacement is supported, and the refusal names its own fix.
-   - **Window refusal** (window closed / pick no longer required) is terminal: do not retry; continue with the auto-placed queen.
-   - The window is 120 s and closes at `matchStarts` (lobby `startsAt` is the open time; close = `startsAt` + 120 s). The refusal response carries no tick, so time the first call from wall clock: issue it within about 30 s of joining so a retry still fits before the close. On 2026-11-08 the single call hit `nest_food` and the window had already closed by the next action (3.56 s after the close), so no retry was made.
-   Then, with no reading or analysis in between, set brood to workers using the live-supported setting and place the first FORAGE mark on the nearest visible, reachable food.
-3a. Start the keepalive once, immediately after the first commands: `node scripts/keepalive.mjs --detach --url "<the exact mcpUrl>" --seat 1`. It reads `%USERPROFILE%\.antwars\key` itself, sends only `observe` every 60 s, makes no moves, and exits 0 on `match_over`. This process, not the model, keeps the seat inside the 300 s forfeit: on 2026-11-09 the seat forfeited at tick 4,710 after two model turns of 3 m 05 s and 2 m 13 s. Within 5 s check `%USERPROFILE%\.antwars\keepalive.log` for `"event":"heartbeat","ok":true`; on `refused:not_seated` fix `--seat` and start it once more. Stop it with `%USERPROFILE%\.antwars\keepalive.log.stop` (an ended match stops it too). Its observes drain the event queue, so after a long turn read `observe {since:0}` for events it consumed. Never pass the key on the command line or print it.
-4. After the first brood and FORAGE orders are accepted, read the full match briefing and rules once. If the tool output is truncated and returns an artifact handle, fetch it. If the match server exposes its own rules, read them once.
-5. Observe about every 15-20 seconds during the opening and fights, and about every 30 seconds in calm periods. Never let more than 60 seconds pass between accepted game-tool calls while you are playing; the keepalive covers the 300 s forfeit if a turn runs long, and refused calls reset neither clock.
-   - Run log: at the start of every match turn, append one JSON line to `%USERPROFILE%\.antwars\run-log.jsonl`: `{"at":"<ISO time>","tick":<view tick>,"idleLeft":<observe status[0]>}`. Consecutive `at` values measure turn latency, and `idleLeft` shows the forfeit headroom; the keepalive's heartbeats fill the gaps. Never write the key.
+1. **The opener owns the handoff.** Do not call `locate_match`, `initialize`, `join`, `pick_nest`, `set_brood` or the first FORAGE by hand for a fresh match; the opener has already done them, usually before the first tick. Do not read project files after this handoff; all required strategy files were read during preflight.
+2. Read the opener log once (one call, e.g. `tail -n 20 %USERPROFILE%\.antwars\opener.log`) plus `opener-state.json`. From them take `mcpUrl`, colony (expect 1), `tick`, the accepted `nest` tile, `brood`, and the FORAGE tile. Check for `error`/refusal lines and fix only those (for example a `nest_food` retry that also failed).
+3. **One match turn = one eval cell.** Any new MCP session against the match server must initialize, `join {key, seat}`, issue that turn's calls and print a compact summary inside a single tool call; never split initialize / `tools/list` / schema lookup / join across turns. Rejoining the same key and seat is allowed and returns the seat; a second session must not issue commands that conflict with the opener's FORAGE relay. On HTTP 404 `Unknown session`, initialize a new session and `join {key}` (or `{key, seat}`) again. Whole-number JSON-RPC ids only. Retry transport errors up to 3 times, except `found_queen`: after an error, take a fresh `observe` first and retry only if the state shows the founding did not land; if ambiguous, stop and report.
+4. Read the full match briefing and the live `rules` once, from the match server, on the first turn that needs them. If the output is truncated behind an artifact handle, fetch it. The live briefing and rules take precedence over `prompt.md`.
+5. Cadence: observe every 15-20 s during the opening and fights, 30 s in calm periods; never more than 60 s between accepted game-tool calls. The opener's 45 s heartbeat already holds the 300 s forfeit; if you stop it (`%USERPROFILE%\.antwars\opener.log.stop`), start `scripts/keepalive.mjs --detach --url "<mcpUrl>" --seat 1` instead and check for `"event":"heartbeat","ok":true` within 5 s.
+   - Run log: at the start of every match turn, append one JSON line to `%USERPROFILE%\.antwars\run-log.jsonl`: `{"at":"<ISO time>","tick":<view tick>,"idleLeft":<observe status[0]>}`. Consecutive `at` values measure turn latency; the opener's heartbeats fill the gaps. Never write the key.
    - Decode `observe` cells with `kind = k % 6`: colony is `kind % 2` (even = colony 0, odd = colony 1), never `antId % 2`; `kind >= 4` is a soldier.
-6. Use `order`, `count_mark`, `found_queen` and `set_brood` only according to their live schemas and limits. After consequential actions, check whether each command was accepted and adapt to the board.
-7. Continue until the server confirms `matchOver: true` (or its documented equivalent), the winner or draw, and the result.
+6. Use `order`, `count_mark`, `found_queen` and `set_brood` only according to their live schemas and limits (`order` and `count_mark` share one command per 10 s; `set_brood` and `observe` do not). After consequential actions, check acceptance and adapt. Do not re-lay the opener's FORAGE mark at the same tile unless it has expired or the food is gone.
+7. Continue until the server confirms `matchOver: true`, the winner or draw, and the result. Then stop the opener if it is still running (`%USERPROFILE%\.antwars\opener.log.stop`).
 
 ## 4A. Play plan
 
-All gameplay strategy is in the repository-root `prompt.md`, read once during preflight (section 2).
-Do not read `prompt.md`, `study/last-match.md`, `study/match-notes.md` or any other project file after match handoff.
-The live match briefing and rules take precedence over historical targets in `prompt.md`.
-Use the observation, accepted-call and idle cadence in section 4.
+All gameplay strategy is in the repository-root `prompt.md`, read once during preflight (section 2). Do not read `prompt.md`, `study/last-match.md`, `study/match-notes.md` or any other project file after match handoff. The live match briefing and rules take precedence over historical targets in `prompt.md`. Use the observation, accepted-call and idle cadence in section 4.
 
 ## 5. Report and stopping rules
 
 - Report the route used (A, B, D, or none), the challenger name shown by the server, the opponent identity and type, match start and end, winner or draw, duration if provided, final stats, and important confirmed events.
+- Report the start timing from the opener log: `challenge`→`located`→`joined` deltas, the `joined` tick, the `nest_pick` result and tick, and the first `brood`/`forage` tick. A handoff that took longer than 5 s from `request_challenge` to `joined`, or a first command after tick 100, is a defect to report, not a match detail to gloss over.
 - Separate VERIFIED facts from interpretation. Label anything not confirmed as UNVERIFIED.
 - If no match was started, state what was checked in this run and the exact blocker (tool name, error text, or rule wording). Do not claim house bots are inaccessible beyond what was observed.
 - Do not start another queue, lobby, challenge, identity or match after this run unless the user explicitly asks again.
