@@ -337,6 +337,7 @@ async function openMatch(match, joined) {
 
   const target = chooseForage(view);
   if (target !== null) {
+    await sleep(1000);   // the view's observe and the brood call were <1 s ago; the limit is 2 calls/s
     const marked = await match.call("count_mark", { verb: "FORAGE", count: forageCount, tileX: target.primary.tileX,
       tileY: target.primary.tileY, caste: "worker" });
     logLine({ event: "forage", ok: marked.ok, code: marked.errorCode, tile: [target.primary.tileX, target.primary.tileY],
