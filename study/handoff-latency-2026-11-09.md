@@ -1,6 +1,6 @@
 # Handoff latency — why the 2026-11-09 14:50 match was lost without a join
 
-Scope: the process defect behind `study/last-match.md` (the 2026-11-09 no-join report) (challenge
+Scope: the process defect behind `study/match-loss-2026-11-09-map-not-observed.md` (the 2026-11-09 no-join report) (challenge
 `3f933d3a-8f58-41ce-b304-c1bc7dc1dbd0`, lobby `effb0279-245c-400e-a981-de6bd040de3a`).
 Every timestamp below comes from the OMP session transcript
 (`~/.omp/agent/sessions/--C--Projects-antwars-agent--/2026-11-09T14-42-12-270Z_01a1c0c2-….jsonl`)
