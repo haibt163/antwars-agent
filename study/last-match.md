@@ -1,47 +1,45 @@
-# Match report — 2026-11-10 03:46Z win, Central Lake v2
+# Match report — 2026-11-10 loss, Wide Plain
 
 | Field | Value |
 |---|---|
-| Result | Colony 1 (`omp-dolphin`) won; `queens_killed`, `decidedBy: queens_killed`, tick 16,453 |
+| Result | Colony 0 (`Very Large Colony`) won; colony 1 (`omp-dolphin`) lost; `sustained_territory`, `decidedBy: territory`, tick 17,002 |
 | Route | A — house challenge, unrated public lobby |
 | Challenger | `omp-dolphin`, colony 1 (VERIFIED: lobby `colonies[1][0]`) |
-| Opponent | `antwars/gpt-6-1-terra-max-fast` (house seat, colony 0; lobby `challenge.heldColony: 0`) |
-| Lobby | `5d8b1643-97b8-4141-8abe-d6d2bbe60b54`; request `ea35f981-829c-4366-92b0-f79879d58725`; seat 1 |
-| Map | Central Lake v2, 128 × 96; 18,000-tick limit |
-| Clock | Server `matchStarts` 2026-11-10T03:46:51.125Z; end tick 16,453 ≈ 04:14:16Z (1,645 s of the 1,800 s limit) |
+| Opponent | `antwars/k3-1-pro-highspeed` (house seat, colony 0; lobby `challenge.heldColony: 0`) |
+| Lobby | `04d39500-b042-453a-8fe3-082777609233`; request `642bd974-8b35-48e8-8142-d869f7ad5c2e`; seat 1 |
+| Map | Wide Plain, 256 × 92; 36,000-tick (3,600 s) limit; ant cap 1,024 per colony |
+| Clock | Server `matchStarts` 2026-11-10T04:50:10.779Z; first view tick 12 at 04:52:11Z; end tick 17,002 ≈ 05:20:30Z (1,700 s of the 3,600 s limit) |
 
 ## Final state (server-confirmed)
 
 | Field | Value |
 |---|---|
-| Territory | 265‰ ours, 5‰ enemy at tick 16,454 (17.6× at tick 16,197; the 300 s hold never ran out before the kill) |
-| Queens | Queen 0 (111,48) workers; queen 1 (111,15) soldiers; queen 2 (112,80) soldiers; queen 3 (79,15) soldiers; all 40/40 HP |
-| Stored food | 7,604 |
-| Enemy ants in sight | 0 from tick 15,416 |
-| Count-mark credits | ATTACK 80 at (64,12): 222 kills / 128 lost; ATTACK 70 at (44,12): 184 / 129; ATTACK 60 at (16,24): 120 / 64; ATTACK 60 at (16,40): 87 / 33; ATTACK 60 at (34,14): 55 / 35; DEFEND 30 at (100,78): 84 / 44 |
+| Territory | 1 original-size tile area (0‰) against ~200‰ for colony 0 |
+| Queens | Queen 0 (223,46) and queen 1 (223,14) lost; queen 2 (223,78) and queen 3 (191,64) at 40/40 HP |
+| Stored food | 0 at the end |
+| Ants in sight | 0 from tick 15,509 to the end |
+| Peaks | 989 ants in sight at tick 8,040 (552 workers, 437 soldiers); territory 41‰ / 244 areas at tick 13,915 |
+| Count-mark credits | ATTACK 100 at (184,8): 400 kills / 298 lost (last read tick 11,080); DEFEND 40 at (223,46): 40 / 18 (tick 13,915); ATTACK 100 at (210,48): 112 / 52 (tick 15,068); a FORAGE mark in the north lane lost 240 workers |
 
-Per-mark values are read at the last observation that still listed the mark; a live mark's figure is not final, and no colony-total kill count is exposed.
+No enemy queen was seen at any point in the match.
 
 ## Queen-founding and brood timeline
 
 | Tick | Event |
 |---|---|
-| 0 | Queen 0 auto-placed at (111,48); the join carried no nest window (`nestSelection.required: false`), so no pick was made |
-| 13 | Queen 0 set to workers |
-| 2,009 | Queen 0 set to mixed (early-rush guard) |
-| 3,045 | Queen 1 founded at (111,15), 400 food (1,821 → 1,438 net of income); site pre-held by the squad |
+| 0 | Queen 0 auto-placed at (223,46); the join carried no nest window (`nestSelection.required: false`), so no pick was made |
+| 12 | Queen 0 set to workers |
+| 2,067 | Queen 0 set to mixed (early-rush guard) |
+| 2,999 | Queen 1 founded at (223,14), 400 food |
 | 3,241 | Queen 0 back to workers; queen 1 to soldiers |
-| 4,864 | Queen 2 founded at (112,80), 800 food (2,594 → 1,808); site pre-held by a DEFEND mark |
-| 4,966 | Queen 2 to soldiers |
-| 9,944 | Queen 3 founded at (79,15), 1,600 food (4,054 → 2,486), forward ground inside the held north lane |
-| 10,226 | Queen 3 to soldiers |
+| 4,846 | Queen 2 founded at (223,78), 800 food; queen 2 to soldiers at 4,966 |
+| 9,944 | Queen 3 founded at (191,64), 1,600 food, on the south side of our pinch; queen 3 to soldiers at 10,226 and to workers at 14,644 |
 
 ## Decisive server-confirmed events
 
-- Tick 5,093: 18 enemy soldiers in sight at x37–42, y20–23 on the north approach; by tick 5,403 the enemy's main effort was 43 soldiers and 13 workers in the south lane at x64–87, y72–88.
-- Ticks 5,649–8,153: DEFEND marks at (104,78) and (100,78) met the southern wave on our ground. The mark at (100,78) finished with 84 kills for 44 losses, and the enemy force in sight fell to 24 by tick 8,153.
-- Ticks 5,831–14,436: stepped ATTACK marks west along y12 from (100,12) through (44,12) to (16,24) and (12,36) broke the northern defence, with per-mark credits of 222, 184 and 120 kills.
-- Ticks 10,870–11,110: an enemy queen at (40,14) was seen at 11,800 HP, 6,550 at tick 11,004 and 1,600 at tick 11,021, then gone from sight while our ants held (40,17). Recorded as INFERRED death; the closing `queens_killed` confirms every enemy queen died.
-- Tick 12,878: enemy queen at (8,15), 40/40 HP. Tick 13,630: enemy queen at (16,48), 40/40 HP. Both later left sight.
-- Tick 15,117: enemy queen at (32,80), 40/40 HP. By tick 15,416 no enemy ant was in sight and the enemy territory share had fallen to 33‰, and to 5‰ at the end.
-- No queen of ours lost HP in any observation; all four stood at 40/40 HP at the end.
+- Tick 8,040: 989 ants in sight, but our half held only 13 visible food tiles; the remaining food lay west of our pinch beside the enemy's ~150-worker swarm.
+- Ticks 9,572–11,372: the ATTACK mark at (184,8) fought that swarm and finished with 400 kills for 298 losses. A FORAGE mark in the same lane lost 240 workers before it expired.
+- Ticks ~12,000–13,200: a 70+ enemy column came through the north lane into our box at x176–215, y16–35. Queen 1 (223,14) was lost by tick 12,288 and queen 0 (223,46) by tick 13,173; our 85-soldier field force stood 60 tiles away at (160,80).
+- Tick 13,915: last territory peak, 41‰ / 244 areas. By tick ~14,600 our share was 0‰ against ~200‰ for the enemy.
+- Tick 15,509: stored food 0 and no ant of ours in sight. No hatch was observed with food at 0 (INFERRED food-gated hatching); queens 2 and 3 stayed at 40/40 HP to the end.
+- Tick 17,002: `sustained_territory`. Colony 0 held at least 100 tile areas and at least 6× our territory for 300 s.
