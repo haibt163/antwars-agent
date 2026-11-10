@@ -35,6 +35,7 @@ import { spawn } from "node:child_process";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readCells } from "./cells.mjs";
 
 const PROTOCOL = "2025-06-18";
 const REQUEST_TIMEOUT_MS = 20_000;
@@ -229,7 +230,7 @@ function chooseNest(sel, cells) {
 /** Nearest visible food tile to a reference tile, then a second choice one tile off. */
 function chooseForage(view) {
   const ref = view.queens?.find((queen) => queen.lostTick === null) ?? view.squad?.[0] ?? { tileX: 0, tileY: 0 };
-  const food = (view.cells ?? []).filter((cell) => cell.food > 0)
+  const food = readCells(view.cells).filter((cell) => cell.food > 0)
     .map((cell) => ({ ...cell, d: (cell.tileX - ref.tileX) ** 2 + (cell.tileY - ref.tileY) ** 2 }))
     .sort((a, b) => a.d - b.d || a.tileY - b.tileY || a.tileX - b.tileX);
   return food.length === 0 ? null : { primary: food[0], fallback: food[Math.min(1, food.length - 1)] };
@@ -241,7 +242,7 @@ const TILE_REFUSALS = new Set(["nest_food", "nest_water", "nest_rock", "nest_out
 
 /** pick_nest once, plus one retry with the fallback on a tile-specific refusal. */
 async function pickNest(match, sel, view) {
-  const cells = view?.cells ?? [];
+  const cells = readCells(view?.cells);
   if (sel === undefined || sel === null) { logLine({ event: "nest", skipped: "no nestSelection" }); return null; }
   const remaining = sel.closesAt === undefined ? 0 : sel.closesAt - Date.now();
   if (remaining <= 0) {
@@ -359,8 +360,9 @@ async function openMatch(match, joined) {
 
 function summary(view, status) {
   const mine = (view.squad ?? []).length;
-  const workers = (view.cells ?? []).flatMap((cell) => cell.ants).filter((ant) => ant.colony === view.colony && ant.caste === "worker").length;
-  const soldiers = (view.cells ?? []).flatMap((cell) => cell.ants).filter((ant) => ant.colony === view.colony && ant.caste === "soldier").length;
+  const ants = readCells(view.cells).flatMap((cell) => cell.ants);
+  const workers = ants.filter((ant) => ant.colony === view.colony && ant.caste === "worker").length;
+  const soldiers = ants.filter((ant) => ant.colony === view.colony && ant.caste === "soldier").length;
   return { tick: view.tick, idleLeft: Array.isArray(status) ? status[0] : null, enemyShare: Array.isArray(status) ? status[2] : null,
     queens: (view.queens ?? []).filter((queen) => queen.lostTick === null).length,
     squad: mine, workersInSight: workers, soldiersInSight: soldiers,
