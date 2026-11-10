@@ -281,8 +281,17 @@ async function joinMatch(match, budgetMs = 180_000) {
 /** One view, retried while the match has not started. */
 async function firstView(match, budgetMs = 150_000) {
   const deadline = Date.now() + budgetMs;
+  let waitLogged = false;
   while (Date.now() < deadline) {
     const observed = await match.call("observe", {});
+    // A pre-start seat gets a successful reply with no view: {"waiting":true,...}.
+    // Treating it as final made openMatch dereference an undefined view (2026-11-10).
+    if (observed.ok === true && observed.data?.view === undefined) {
+      if (!waitLogged) logLine({ event: "observe_wait", waiting: observed.data?.waiting ?? null, matchStarts: observed.data?.matchStarts ?? null });
+      waitLogged = true;
+      await sleep(1000);
+      continue;
+    }
     if (observed.ok && observed.data?.view) return observed;
     if (observed.errorCode === "match_over") return observed;
     if (observed.errorCode === "session_gone") return observed;
@@ -311,7 +320,11 @@ async function openMatch(match, joined) {
 
   const observed = await firstView(match);
   if (observed.ok === false) { logLine({ event: "no_view", code: observed.errorCode }); return observed; }
-  const view = observed.data.view;
+  const view = observed.data?.view;
+  if (view === undefined) {
+    logLine({ event: "no_view", code: observed.data?.waiting === true ? "still_waiting" : "no_view_payload" });
+    return { ok: false, data: null, errorCode: "no_view" };
+  }
   if (observed.data.matchOver === true) return observed;
 
   // Brood first, then forage: workers carry, so this is the income that funds everything.
@@ -368,7 +381,8 @@ async function beat(match) {
     logLine({ event: "heartbeat", ok: false, code: observed.errorCode });
     return false;
   }
-  const view = observed.data.view;
+  const view = observed.data?.view;
+  if (view === undefined) { logLine({ event: "heartbeat", ok: false, code: "no_view_payload" }); return true; }
   const status = observed.data.status ?? null;
   logLine({ event: "heartbeat", ok: true, ...summary(view, status) });
   state.tick = view.tick;

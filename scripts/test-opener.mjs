@@ -88,6 +88,8 @@ const server = createServer((request, response) => {
     if (name === "join") {
       takes.join += 1;
       if (takes.join === 1) return reply({ error: { code: "lobby_loading", message: "loading" } }, true);
+      // 2026-11-10 challenge join: no nestSelection and no view until the start.
+      if (mode === "waiting") return reply({ agentId: "agent-1", colony: 1, matchStarts: "2026-11-10T00:30:31.500Z" });
       return reply({ agentId: "agent-1", colony: 1, matchStarts: "soon",
         nestSelection: { required: false, box: BOX, closesAt: Date.now() + 60_000, terrain: { water: WATER, rocks: [] }, picks: [] } });
     }
@@ -107,6 +109,12 @@ const server = createServer((request, response) => {
     if (name === "observe") {
       takes.observe += 1;
       if (mode === "live") return reply({ view: view(40 * takes.observe), status: [300, "observe", 0], matchOver: false });
+      if (mode === "waiting") {
+        // 2026-11-10 wire shape: success, no view, no error code, while the slot waits to start.
+        if (takes.observe <= 2) return reply({ waiting: true, matchStarts: "2026-11-10T00:30:31.500Z",
+          message: "Your match has not started; keep calling observe.", houseIdleSeconds: 300, status: [300, "order count_mark found_queen set_brood observe rules join", 0] });
+        return reply({ view: view(40 * (takes.observe - 2)), status: [300, "observe", 0], matchOver: false });
+      }
       if (takes.observe === 1) return reply({ error: { code: "match_not_started", message: "not yet" } }, true);
       const tick = 40 * (takes.observe - 1);
       if (takes.observe >= 4) {
@@ -241,6 +249,31 @@ const dir = tmpdir();
   if (exit?.reason !== "stop_file") { console.error(`FAIL scenario 4: exit reason ${exit?.reason}`); process.exit(1); }
   if (!lines.some((line) => line.event === "heartbeat" && line.ok === true)) { console.error("FAIL scenario 4: no heartbeat"); process.exit(1); }
   console.log("ok  scenario 4 (keepalive): stale stop file ignored, 5 s heartbeat, live stop file exits 0");
+}
+
+// ---------------------------------------------------------------- scenario 5
+// 2026-11-10 defect: the join reply carried no nestSelection and every pre-start
+// observe answered {waiting:true} with no view. firstView treated that as final,
+// openMatch read view.queens on undefined, and the opener died 166 ms after join.
+{
+  reset();
+  mode = "waiting";
+  const logPath = join(dir, `opener-test-e-${process.pid}.log`);
+  const { code, lines, events, text } = await run(["--mcp-url", url, "--token", "test-token", "--once"], logPath, 60_000);
+  const fail = (message) => { console.error(`FAIL scenario 5: ${message}\nevents: ${events.join(" -> ")}`); process.exit(1); };
+  if (code !== 0) fail(`exit ${code}`);
+  if (text.includes("fatal")) fail("opener crashed on a viewless pre-start reply");
+  const nest = lines.find((line) => line.event === "nest");
+  if (nest?.skipped !== "no nestSelection") fail(`nest event ${JSON.stringify(nest)}`);
+  if (takes.pick_nest.length !== 0) fail("pick_nest sent without a nest window");
+  if (!events.includes("observe_wait")) fail("no observe_wait event");
+  const brood = lines.find((line) => line.event === "brood");
+  if (brood === undefined || brood.ok !== true) fail("brood not accepted after the wait");
+  const forage = lines.find((line) => line.event === "forage");
+  if (forage === undefined || forage.ok !== true) fail("forage not accepted after the wait");
+  const state = JSON.parse(readFileSync(`${logPath}.json`, "utf8"));
+  if (state.phase !== "playing") fail(`state phase ${state.phase}`);
+  console.log(`ok  scenario 5 (pre-start waiting): ${events.join(" -> ")}`);
 }
 
 server.close();
