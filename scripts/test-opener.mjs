@@ -19,6 +19,7 @@ import { readFileSync, rmSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { readCells } from "./cells.mjs";
 
 const BOX = { x: 96, y: 0, width: 32, height: 96 };
 const CENTRE = { tileX: BOX.x + BOX.width / 2, tileY: BOX.y + BOX.height / 2 };
@@ -34,7 +35,38 @@ function reset() {
   takes.pick_nest = []; takes.set_brood = []; takes.count_mark = [];
 }
 
-const cells = () => FOOD.map(([tileX, tileY, food]) => ({ tileX, tileY, food, ants: [] }));
+/** The live wire shape (2026-11-10): one encoded cells string, not an array of cells. */
+const FIXTURE_ANTS = [
+  { tileX: 113, tileY: 48, antId: 10, hp: 4000, kind: 3 },   // worker, colony 1
+  { tileX: 111, tileY: 48, antId: 11, hp: 4000, kind: 3 },   // worker, colony 1
+  { tileX: 105, tileY: 44, antId: 12, hp: 4000, kind: 5 },   // soldier, colony 1
+  { tileX: 108, tileY: 46, antId: 13, hp: 4000, kind: 2 },   // worker, colony 0
+];
+const CELLS_WIDTH = 128;
+const CELLS_RADIX = 2;
+const base36 = (n) => `${n < 0 ? "-" : ""}${Math.abs(n).toString(36)}`;
+/** `p = (index - i) * radix + food`, ants `antId.k` with `k = hp * 6 + kind`. */
+function encodeCells(entries) {
+  let i = 0;
+  const tokens = [];
+  const sorted = [...entries].sort((a, b) => (a.tileY * CELLS_WIDTH + a.tileX) - (b.tileY * CELLS_WIDTH + b.tileX));
+  for (const entry of sorted) {
+    const index = entry.tileY * CELLS_WIDTH + entry.tileX;
+    const p = (index - i) * CELLS_RADIX + (entry.food > 0 ? 1 : 0);
+    i = index;
+    const ants = (entry.ants ?? []).map((ant) => `${base36(ant.antId)}.${base36(ant.hp * 6 + ant.kind)}`).join("/");
+    tokens.push(`${base36(p)}${ants === "" ? "" : `:${ants}`}`);
+  }
+  return { width: CELLS_WIDTH, height: 96, encoding: "test fixture", foodRadix: CELLS_RADIX, data: tokens.join(";") };
+}
+function cells() {
+  const entries = FOOD.map(([tileX, tileY, food]) => ({ tileX, tileY, food }));
+  for (const ant of FIXTURE_ANTS) {
+    const at = entries.find((entry) => entry.tileX === ant.tileX && entry.tileY === ant.tileY);
+    if (at) { at.ants = [...(at.ants ?? []), ant]; } else { entries.push({ tileX: ant.tileX, tileY: ant.tileY, ants: [ant] }); }
+  }
+  return encodeCells(entries);
+}
 
 function view(tick) {
   const nest = picked ?? CENTRE;
@@ -144,6 +176,23 @@ await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 const url = `http://127.0.0.1:${server.address().port}/mcp`;
 const dir = tmpdir();
 
+// ---------------------------------------------------------------- cells decode
+{
+  // Captured live `view.cells` from this repo's 2026-11-10 match (tick 318,
+  // Central Lake v2): 149 cells with content, 103 food tiles, 58 colony-1 workers.
+  const LIVE_CELLS = { width: 128, height: 96, foodRadix: 2, data: "3q7;dx;5*5;3*2;dh;3*2;5;d;5*3;d9;5*3;d;3*2;5;3*2;5;d5;5*3;4:e.iir;h;5*2;d5;5*4;5:i.iir;5*5;6k:2l.iir;6l;5*3;6:2a.iir;2:o.iir/28.iir;5*5;6i:2.iir;6r;5*2;5:c.iir;9;5*3;6m:1q.iir/2n.iir;6v;5*2;2:2k.iir;4:1a.iir;2:4.iir;5*2;6q:25.iir;6:23.iir/2b.iir;6y:20.iir;6:1o.iir;6y:12.iir/1t.iir;4:1i.iir;2:q.iir;74:2f.iir;6y:s.iir/10.iir;74:u.iir;2:1k.iir;2:1c.iir;70:1g.iir;2:2d.iir;2:y.iir/21.iir;72:16.iir;2:1y.iir;70:14.iir;2:2i.iir;2:2x.iir;74:8.iir/1w.iir;70:a.iir;2:2g.iir;dq:1r.iir;i:2z.iir;6q:26.iir;e,1,uv4;-6pv;dx;5*4;3*4;dh;3*2;5*2;3*2;9;3*2;5;db;3;5;x;d9;13;3;cz;3;1b;4ar;a:w.iir/1e.iir;6y:6.iir/g.iir;4:18.iir;a:1v.iir;2:1m.iir;6f;3;2:2q.iir;8:2s.iir;2:2p.iir;6:2u.iir;2:k.iir/m.iir;6:2v.iir;dn" };
+  const decoded = readCells(LIVE_CELLS);
+  const liveFood = decoded.filter((cell) => cell.food > 0);
+  const liveAnts = decoded.flatMap((cell) => cell.ants);
+  const fail = (message) => { console.error(`FAIL cells decode: ${message}`); process.exit(1); };
+  if (decoded.length !== 149) fail(`cells ${decoded.length}, expected 149`);
+  if (liveFood.length !== 103) fail(`food ${liveFood.length}, expected 103`);
+  if (liveAnts.length !== 58) fail(`ants ${liveAnts.length}, expected 58`);
+  if (!liveAnts.every((ant) => ant.colony === 1 && ant.caste === "worker")) fail("caste or colony decode");
+  if (!liveFood.some((cell) => cell.tileX === 111 && cell.tileY === 18)) fail("missing food at (111,18)");
+  console.log("ok  cells decode: captured live payload -> 149 cells, 103 food, 58 colony-1 workers");
+}
+
 // ---------------------------------------------------------------- scenario 1
 {
   reset();
@@ -172,6 +221,9 @@ const dir = tmpdir();
   if (forage.tile[0] !== nearest.tileX || forage.tile[1] !== nearest.tileY) fail(`forage tile ${forage.tile}, expected ${nearest.tileX},${nearest.tileY}`);
   const beats = lines.filter((line) => line.event === "heartbeat" && line.ok === true);
   if (beats.length < 1) fail("no heartbeat");
+  if (beats[0].workersInSight !== 2 || beats[0].soldiersInSight !== 1) {
+    fail(`cell decode counts ${beats[0].workersInSight} workers / ${beats[0].soldiersInSight} soldiers, expected 2 / 1`);
+  }
   if (!events.includes("result")) fail("no result event");
   if (events[events.length - 1] !== "exit") fail("no exit event");
   const state = JSON.parse(readFileSync(`${logPath}.json`, "utf8"));

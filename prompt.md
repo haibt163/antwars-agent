@@ -47,6 +47,8 @@ The Three Crossings v2 loss shows one 100-soldier mark at 3:50 can end a one-que
 
 The live limit is one command per 10 s, and marks last 180 s (CONFIRMED in `rules.config`; 624 `rate_limited` refusals in the archive). That is about 18 commands per mark lifetime, shared by `order`, `count_mark` and `found_queen`; `set_brood` and `observe` do not use this allowance (they count only toward the 2-calls/s limit). Spend the slots in this order: queen safety, founding, refreshing the marks that matter, then everything else. Do not retry a refused command unchanged.
 
+`SPAWN` and `REMOVE` are verbs of the `count_mark` tool (`REMOVE` + `markId` from `view.myMarks`; `SPAWN` + `queenId`, `tileX`, `tileY`), not separate tools.
+
 ## Soldier surge (economy-to-army conversion)
 
 Set the mix before the cap. At the cap new ants only replace the dead, so brood changes then produce nothing until ants die. In Open Field our colony stood at 449–512 ants by tick 14,395 (the cap is reachable from tick 12,606; it was NOT at the cap at tick 11,857, CONFIRMED from the log). Workers rarely die and soldiers die in every strike, so a colony that is worker-heavy at the cap stays worker-heavy. Hatch cadence is CONFIRMED: one worker per 10 ticks per worker queen, one soldier per 20 ticks per soldier queen, so one worker queen out-produces a soldier queen two to one, and two soldier queens plus one worker queen hatch about half workers. No ant carries a caste in the public log, so every worker and soldier count in our reports is an estimate; the agent's census read 386 workers and 125 soldiers at tick 12,600 (a colony-wide total of 511 that matches the log, but an unverifiable split).
