@@ -27,12 +27,12 @@ const WATER = [[100, 0, 2, 6]];
 const FOOD = [[112, 48, 12], [110, 44, 10], [98, 12, 14]];
 let picked = null;
 let mode = "end";
-const takes = { join: 0, observe: 0, locate: 0, pick_nest: [], set_brood: [], count_mark: [] };
+const takes = { join: 0, observe: 0, locate: 0, pick_nest: [], set_brood: [], count_mark: [], callrate: 0 };
 
 function reset() {
   picked = null;
   takes.join = 0; takes.observe = 0; takes.locate = 0;
-  takes.pick_nest = []; takes.set_brood = []; takes.count_mark = [];
+  takes.pick_nest = []; takes.set_brood = []; takes.count_mark = []; takes.callrate = 0;
 }
 
 /** The live wire shape (2026-11-10): one encoded cells string, not an array of cells. */
@@ -140,6 +140,10 @@ const server = createServer((request, response) => {
     }
     if (name === "observe") {
       takes.observe += 1;
+      if (mode === "callrate" && takes.observe === 3) {
+        takes.callrate += 1;
+        return reply({ error: { code: "call_rate", message: "At most 2 calls per second per agent.", retryAfterMs: 250 } }, true);
+      }
       if (mode === "live") return reply({ view: view(40 * takes.observe), status: [300, "observe", 0], matchOver: false });
       if (mode === "waiting") {
         // 2026-11-10 wire shape: success, no view, no error code, while the slot waits to start.
@@ -330,6 +334,25 @@ const dir = tmpdir();
   const state = JSON.parse(readFileSync(`${logPath}.json`, "utf8"));
   if (state.phase !== "playing") fail(`state phase ${state.phase}`);
   console.log(`ok  scenario 5 (pre-start waiting): ${events.join(" -> ")}`);
+}
+
+// ---------------------------------------------------------------- scenario 6
+// 2026-11-10 defect: one `call_rate` refusal on the 45 s heartbeat made beat()
+// return false, and the opener exited at tick ~5,012 with the seat unguarded for
+// the rest of the match. The refusal must be retried, not treated as fatal.
+{
+  reset();
+  mode = "callrate";
+  const logPath = join(dir, `opener-test-f-${process.pid}.log`);
+  const { code, lines, events } = await run(["--mcp-url", url, "--token", "test-token", "--interval", "15"], logPath, 90_000);
+  const fail = (message) => { console.error(`FAIL scenario 6: ${message}\nevents: ${events.join(" -> ")}`); process.exit(1); };
+  if (code !== 0) fail(`exit ${code}`);
+  if (takes.callrate !== 1) fail(`mock refused ${takes.callrate} heartbeats, expected 1`);
+  const refused = lines.find((line) => line.event === "heartbeat" && line.ok === false);
+  if (refused !== undefined) fail(`heartbeat logged as failed: ${JSON.stringify(refused)}`);
+  if (!events.includes("result")) fail("opener exited before the result after a call_rate refusal");
+  if (events[events.length - 1] !== "exit") fail("no exit event");
+  console.log(`ok  scenario 6 (heartbeat call_rate): retried, ${events.join(" -> ")}`);
 }
 
 server.close();

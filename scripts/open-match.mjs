@@ -379,6 +379,13 @@ async function beat(match) {
     if (!rejoined.ok) { logLine({ event: "rejoin_failed", code: rejoined.errorCode }); return false; }
     observed = await match.call("observe", {});
   }
+  // One call_rate refusal is not a dead match: the model's own turns share the
+  // 2-calls/s budget, and on 2026-11-10 a single refusal at tick ~5,012 stopped
+  // this 45 s heartbeat for the rest of the match. Retry it like firstView does.
+  for (let attempt = 0; !observed.ok && observed.errorCode === "call_rate" && attempt < 3; attempt += 1) {
+    await sleep(Math.max(250, Math.min(2000, Number(observed.data?.error?.retryAfterMs) || 500)));
+    observed = await match.call("observe", {});
+  }
   if (!observed.ok) {
     if (observed.errorCode === "match_over") { logLine({ event: "match_over", tick: null }); return false; }
     logLine({ event: "heartbeat", ok: false, code: observed.errorCode });
