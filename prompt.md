@@ -37,6 +37,7 @@ The economy exists to fund an army that ends the match. Do not keep adding worke
 
 The Three Crossings v2 loss shows one 100-soldier mark at 3:50 can end a one-queen game by 7:24. In the archive a first ATTACK before 3:00 happened in 53 matches.
 
+- Before the field army leaves home, keep a home guard sized to the last-seen enemy raid column (VERIFIED events, 2026-11-10 Wide Plain loss: a 70+ enemy column reached our queens while our 85 soldiers stood 60 tiles away, and queens 1 and 0 fell at ticks 12,288 and 13,173 — `study/last-match.md`; the sizing rule itself is UNVERIFIED).
 - Start mixed or soldier brood by about 3:30 so a guard of roughly 15–25 soldiers (UNVERIFIED sizing) is near the home queen by 4:00, held with a DEFEND mark that is refreshed before its 180 s lifetime ends. Return to worker-first brood after the second queen is up.
   - 2026-11-10 Central Lake v2 win (house `antwars/gpt-6-astra`): the 3:30 mixed switch left 8 guard soldiers at tick 2,482 while the enemy fielded 77 soldiers by tick 3,005, so a 4:00 guard below about 15 is thin against a house bot's 5:00 wave (counts VERIFIED, `study/match-win-2026-11-10-central-lake-v2.md`; whether 8 was *insufficient* is UNVERIFIED — that wave met our forward ants and no queen of ours was touched).
 - If any enemy ant is seen near the nest earlier, switch to mixed or soldier brood at once.
@@ -106,6 +107,8 @@ Source: `study/maps.md`. Water is fixed per map; rocks are random each match and
 - **Four Lanes** 128×128 (n=33): lanes y0–19, 36–55, 72–93, 106–127. Enemy extras (48,80) n=8, (48,48) n=6. Push y72–93 (the 11/04 win used it) or y36–55; in the 11/06 win the south push at (56,80) cost 189 losses for 147 kills while the middle-lane mark at (96,50) took 8 kills for 0 losses. On 11/06 in the Four Lanes win the two enemy queens we saw stood at (40,80) — 8 tiles west of the (48,80) cell — and at (20,39) in the start box (VERIFIED, `study/match-win-2026-11-06-four-lanes.md`), so sweep the ground around a cell and the start box, not only inside the cell.
 
 ## Decision rule
+
+On wide maps, read the enemy's territory share at every observation: from 600 s, a side holding at least 100 original-size tile areas and at least 6× the opponent's territory for 300 s wins immediately (live rule, VERIFIED); the 2026-11-10 Wide Plain loss ended exactly that way, ~200‰ against our 0‰ (`study/last-match.md`).
 
 At each observation, prioritize:
 

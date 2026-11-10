@@ -132,9 +132,9 @@ const server = createServer((request, response) => {
       picked = { tileX: args.tileX, tileY: args.tileY };
       return reply({ accepted: true });
     }
-    if (name === "set_brood") { takes.set_brood.push(args); return reply({ accepted: true, tick: 0, queenId: 0, brood: args.brood }); }
+    if (name === "set_brood") { takes.set_brood.push({ ...args, at: Date.now() }); return reply({ accepted: true, tick: 0, queenId: 0, brood: args.brood }); }
     if (name === "count_mark") {
-      takes.count_mark.push(args);
+      takes.count_mark.push({ ...args, at: Date.now() });
       if (!FOOD.some(([tileX, tileY]) => tileX === args.tileX && tileY === args.tileY)) return reply({ error: { code: "count_mark_not_visible", message: "no" } }, true);
       return reply({ accepted: true, tick: 0 });
     }
@@ -215,6 +215,10 @@ const dir = tmpdir();
   if (takes.set_brood[0]?.brood !== "workers") fail("brood not workers");
   const forage = lines.find((line) => line.event === "forage");
   if (forage === undefined || forage.ok !== true) fail("forage not accepted");
+  const broodAt = takes.set_brood[0]?.at;
+  const markAt = takes.count_mark[0]?.at;
+  if (broodAt === undefined || markAt === undefined) fail("missing brood/count_mark timestamps");
+  if (markAt - broodAt < 900) fail(`opening FORAGE ${markAt - broodAt} ms after brood, expected >= 900 (2 calls/s)`);
   const nest = retry.tile;
   const nearest = FOOD.map(([tileX, tileY]) => ({ tileX, tileY, d: (tileX - nest[0]) ** 2 + (tileY - nest[1]) ** 2 }))
     .sort((a, b) => a.d - b.d || a.tileY - b.tileY || a.tileX - b.tileX)[0];
