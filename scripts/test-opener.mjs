@@ -132,9 +132,20 @@ const server = createServer((request, response) => {
       picked = { tileX: args.tileX, tileY: args.tileY };
       return reply({ accepted: true });
     }
-    if (name === "set_brood") { takes.set_brood.push({ ...args, at: Date.now() }); return reply({ accepted: true, tick: 0, queenId: 0, brood: args.brood }); }
+    if (name === "set_brood") {
+      takes.set_brood.push({ ...args, at: Date.now() });
+      if (mode === "opening_callrate" && takes.set_brood.length === 1) {
+        takes.callrate += 1;
+        return reply({ error: { code: "call_rate", message: "At most 2 calls per second per agent.", retryAfterMs: 250 } }, true);
+      }
+      return reply({ accepted: true, tick: 0, queenId: 0, brood: args.brood });
+    }
     if (name === "count_mark") {
       takes.count_mark.push({ ...args, at: Date.now() });
+      if (mode === "opening_callrate" && takes.count_mark.length === 1) {
+        takes.callrate += 1;
+        return reply({ error: { code: "call_rate", message: "At most 2 calls per second per agent.", retryAfterMs: 250 } }, true);
+      }
       if (!FOOD.some(([tileX, tileY]) => tileX === args.tileX && tileY === args.tileY)) return reply({ error: { code: "count_mark_not_visible", message: "no" } }, true);
       return reply({ accepted: true, tick: 0 });
     }
@@ -353,6 +364,35 @@ const dir = tmpdir();
   if (!events.includes("result")) fail("opener exited before the result after a call_rate refusal");
   if (events[events.length - 1] !== "exit") fail("no exit event");
   console.log(`ok  scenario 6 (heartbeat call_rate): retried, ${events.join(" -> ")}`);
+}
+
+// ---------------------------------------------------------------- scenario 7
+// 2026-11-13 (Four Lanes vs kain): the opening set_brood was refused call_rate
+// at tick 7 and never retried, so the colony bred "mixed" until the model's own
+// turn at tick 125. Every opener call must survive one refusal after ~600 ms.
+{
+  reset();
+  mode = "opening_callrate";
+  const logPath = join(dir, `opener-test-g-${process.pid}.log`);
+  const { code, lines, events } = await run(["--mcp-url", url, "--token", "test-token", "--interval", "15"], logPath, 90_000);
+  const fail = (message) => { console.error(`FAIL scenario 7: ${message}\nevents: ${events.join(" -> ")}`); process.exit(1); };
+  if (code !== 0) fail(`exit ${code}`);
+  const brood = lines.find((line) => line.event === "brood");
+  if (brood === undefined || brood.ok !== true) fail(`brood not retried after call_rate: ${JSON.stringify(brood)}`);
+  if (takes.set_brood.length !== 2) fail(`set_brood calls ${takes.set_brood.length}, expected 2 (1 refused, 1 accepted)`);
+  const gap = takes.set_brood[1].at - takes.set_brood[0].at;
+  if (gap < 550) fail(`brood retried after ${gap} ms, expected >= 550`);
+  const forage = lines.find((line) => line.event === "forage");
+  if (forage === undefined || forage.ok !== true) fail(`opening FORAGE not retried: ${JSON.stringify(forage)}`);
+  const first = takes.count_mark[0];
+  const second = takes.count_mark[1];
+  if (first === undefined || second === undefined) fail(`count_mark calls ${takes.count_mark.length}, expected the opening mark twice`);
+  if (first.verb !== "FORAGE" || second.verb !== "FORAGE") fail("opening count_mark is not FORAGE");
+  if (first.tileX !== second.tileX || first.tileY !== second.tileY) fail("retry moved the opening mark");
+  const markGap = second.at - first.at;
+  if (markGap < 550) fail(`opening FORAGE retried after ${markGap} ms, expected >= 550`);
+  if (!events.includes("result")) fail("opener exited before the result after a call_rate refusal");
+  console.log(`ok  scenario 7 (opening call_rate): brood retried after ${gap} ms, FORAGE after ${markGap} ms, ${events.join(" -> ")}`);
 }
 
 server.close();

@@ -238,6 +238,19 @@ function chooseForage(view) {
 
 // ---------------------------------------------------------------- opening
 
+/**
+ * One tool call, retried once on call_rate: the model's own turns share the
+ * 2-calls/s budget, and on 2026-11-13 one refusal killed the opening set_brood
+ * at tick 7. 600 ms floor; the server's retryAfterMs wins when it is larger.
+ * The 45 s heartbeat keeps its own longer retry (see beat).
+ */
+async function callOnce(match, name, args) {
+  const first = await match.call(name, args);
+  if (first.ok === true || first.errorCode !== "call_rate") return first;
+  await sleep(Math.max(600, Math.min(2000, Number(first.data?.error?.retryAfterMs) || 0)));
+  return match.call(name, args);
+}
+
 const TILE_REFUSALS = new Set(["nest_food", "nest_water", "nest_rock", "nest_outside_box", "nest_invalid_tile"]);
 
 /** pick_nest once, plus one retry with the fallback on a tile-specific refusal. */
@@ -331,19 +344,19 @@ async function openMatch(match, joined) {
   // Brood first, then forage: workers carry, so this is the income that funds everything.
   const queen = view.queens?.find((entry) => entry.lostTick === null);
   if (queen !== undefined) {
-    const brood = await match.call("set_brood", { brood: "workers", ...(view.queens.length > 1 ? { queenId: queen.queenId } : {}) });
+    const brood = await callOnce(match, "set_brood", { brood: "workers", ...(view.queens.length > 1 ? { queenId: queen.queenId } : {}) });
     logLine({ event: "brood", ok: brood.ok, code: brood.errorCode, queenId: queen.queenId, tick: brood.data?.tick ?? view.tick });
   }
 
   const target = chooseForage(view);
   if (target !== null) {
     await sleep(1000);   // the view's observe and the brood call were <1 s ago; the limit is 2 calls/s
-    const marked = await match.call("count_mark", { verb: "FORAGE", count: forageCount, tileX: target.primary.tileX,
+    const marked = await callOnce(match, "count_mark", { verb: "FORAGE", count: forageCount, tileX: target.primary.tileX,
       tileY: target.primary.tileY, caste: "worker" });
     logLine({ event: "forage", ok: marked.ok, code: marked.errorCode, tile: [target.primary.tileX, target.primary.tileY],
       count: forageCount, food: target.primary.food, tick: marked.data?.tick ?? view.tick });
     if (!marked.ok && marked.errorCode === "count_mark_not_visible" && target.fallback !== target.primary) {
-      const again = await match.call("count_mark", { verb: "FORAGE", count: forageCount, tileX: target.fallback.tileX,
+      const again = await callOnce(match, "count_mark", { verb: "FORAGE", count: forageCount, tileX: target.fallback.tileX,
         tileY: target.fallback.tileY, caste: "worker" });
       logLine({ event: "forage_retry", ok: again.ok, code: again.errorCode, tile: [target.fallback.tileX, target.fallback.tileY] });
     }
@@ -406,7 +419,7 @@ async function beat(match) {
   if (autoForage && !(view.myMarks ?? []).some((mark) => mark.verb === "FORAGE")) {
     const target = chooseForage(view);
     if (target !== null) {
-      const marked = await match.call("count_mark", { verb: "FORAGE", count: Math.min(forageCount, 8), tileX: target.primary.tileX,
+      const marked = await callOnce(match, "count_mark", { verb: "FORAGE", count: Math.min(forageCount, 8), tileX: target.primary.tileX,
         tileY: target.primary.tileY, caste: "worker" });
       logLine({ event: "forage_relay", ok: marked.ok, code: marked.errorCode, tile: [target.primary.tileX, target.primary.tileY] });
     }
